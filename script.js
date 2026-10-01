@@ -2,7 +2,11 @@ const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton"), document.querySelector("#htfButton")];
 const sessionOptions = document.querySelectorAll(".session-option");
 const directionAssets = document.querySelectorAll(".direction-asset");
-const confidenceLabels = ["Low", "Medium", "High"];
+const trappedGuidance = {
+  Buyers: "Looking for a BUY entry",
+  Sellers: "Looking for a SELL entry",
+  Unclear: "Let's wait - no trades for now"
+};
 const tradeButtons = document.querySelectorAll(".trade-button");
 const themeButton = document.querySelector("#themeButton");
 const calmButton = document.querySelector("#calmButton");
@@ -42,8 +46,8 @@ state.checks = state.checks || [false, false];
 state.checks[2] = Boolean(state.checks[2]);
 state.directions = state.directions || {};
 ["GC", "NQ"].forEach((asset) => {
-  state.directions[asset] = state.directions[asset] || { side: "", confidence: 2 };
-  state.directions[asset].confidence = Math.min(3, Math.max(1, Number(state.directions[asset].confidence) || 2));
+  const trapped = state.directions[asset]?.trapped;
+  state.directions[asset] = { trapped: Object.hasOwn(trappedGuidance, trapped) ? trapped : "" };
 });
 if (!state.sessionChoiceInitialized) {
   state.session = "";
@@ -91,12 +95,13 @@ function render() {
   directionAssets.forEach((assetElement) => {
     const asset = state.directions[assetElement.dataset.asset];
     assetElement.querySelectorAll(".direction-option").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.direction === asset.side));
+      button.setAttribute("aria-pressed", String(button.dataset.trapped === asset.trapped));
     });
-    assetElement.querySelector(".confidence-slider").value = asset.confidence;
-    assetElement.querySelector(".confidence-value").textContent = confidenceLabels[asset.confidence - 1];
+    const guidance = assetElement.querySelector(".trapped-guidance");
+    guidance.textContent = trappedGuidance[asset.trapped] || "";
+    guidance.hidden = !asset.trapped;
   });
-  const directionsComplete = Object.values(state.directions).every((asset) => Boolean(asset.side));
+  const directionsComplete = Object.values(state.directions).every((asset) => Boolean(asset.trapped));
   document.querySelector("#directionItem").classList.toggle("complete", directionsComplete);
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
   themeButton.setAttribute("aria-label", state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
@@ -160,15 +165,10 @@ sessionOptions.forEach((button) => button.addEventListener("click", () => {
 
 directionAssets.forEach((assetElement) => {
   assetElement.querySelectorAll(".direction-option").forEach((button) => button.addEventListener("click", () => {
-    state.directions[assetElement.dataset.asset].side = button.dataset.direction;
+    state.directions[assetElement.dataset.asset].trapped = button.dataset.trapped;
     saveState();
     render();
   }));
-  assetElement.querySelector(".confidence-slider").addEventListener("input", (event) => {
-    state.directions[assetElement.dataset.asset].confidence = Number(event.currentTarget.value);
-    saveState();
-    render();
-  });
 });
 
 tradeButtons.forEach((button) => button.addEventListener("click", () => {
@@ -293,7 +293,7 @@ function createReportImage() {
   const lineHeight = 32;
   const sections = [
     ["Trading session", state.session || "Not selected"],
-    ["Direction confidence", ["GC", "NQ"].map((asset) => `${asset}: ${state.directions[asset].side || "Not selected"} / ${confidenceLabels[state.directions[asset].confidence - 1]}`).join("; ")],
+    ["HTF trapped traders", ["GC", "NQ"].map((asset) => `${asset}: ${state.directions[asset].trapped || "Not selected"}`).join("; ")],
     ["Arrival emotions", reportValue(state.moods.arrival)],
     ["Trade setup rating", state.setupRating || "Not rated"],
     ["After-session emotions", reportValue(state.moods.after)],
@@ -380,7 +380,7 @@ copyReportButton.addEventListener("click", copyReportImage);
 function resetSession() {
   localStorage.removeItem("session-check-in");
   state.checks = [false, false, false];
-  state.directions = { GC: { side: "", confidence: 2 }, NQ: { side: "", confidence: 2 } };
+  state.directions = { GC: { trapped: "" }, NQ: { trapped: "" } };
   state.session = "";
   state.sessionChoiceInitialized = true;
   state.moods = { arrival: [], trade1: [], trade2: [], after: [] };
