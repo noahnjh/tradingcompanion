@@ -2,6 +2,7 @@ const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton"), document.querySelector("#htfButton")];
 const sessionOptions = document.querySelectorAll(".session-option");
 const directionAssets = document.querySelectorAll(".direction-asset");
+const alignmentAssets = document.querySelectorAll(".alignment-asset");
 const trappedGuidance = {
   Buyers: "Looking for a BUY entry",
   Sellers: "Looking for a SELL entry",
@@ -48,6 +49,11 @@ state.directions = state.directions || {};
 ["GC", "NQ"].forEach((asset) => {
   const trapped = state.directions[asset]?.trapped;
   state.directions[asset] = { trapped: Object.hasOwn(trappedGuidance, trapped) ? trapped : "" };
+});
+state.alignment = state.alignment && typeof state.alignment === "object" && !Array.isArray(state.alignment) ? state.alignment : {};
+["GC", "NQ"].forEach((asset) => {
+  const alignment = state.alignment[asset];
+  state.alignment[asset] = ["Yes", "No", "Unclear"].includes(alignment) ? alignment : "";
 });
 if (!state.sessionChoiceInitialized) {
   state.session = "";
@@ -103,6 +109,14 @@ function render() {
   });
   const directionsComplete = Object.values(state.directions).every((asset) => Boolean(asset.trapped));
   document.querySelector("#directionItem").classList.toggle("complete", directionsComplete);
+  alignmentAssets.forEach((assetElement) => {
+    const alignment = state.alignment[assetElement.dataset.alignmentAsset];
+    assetElement.querySelectorAll(".alignment-option").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.alignment === alignment));
+    });
+  });
+  const alignmentsComplete = Object.values(state.alignment).every(Boolean);
+  document.querySelector("#alignmentItem").classList.toggle("complete", alignmentsComplete);
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
   themeButton.setAttribute("aria-label", state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
   setupRating.hidden = !state.sessionStarted;
@@ -120,16 +134,16 @@ function render() {
   completeButton.setAttribute("aria-pressed", String(Boolean(state.sessionCompleted)));
   afterSession.hidden = !state.sessionCompleted;
   noteInput.value = state.note || "";
-  const completedChecks = state.checks.filter(Boolean).length + (directionsComplete ? 1 : 0);
-  routineCount.textContent = `${completedChecks} / 4`;
-  const readyToStart = completedChecks === 4 && state.moods.arrival.length > 0;
+  const completedChecks = state.checks.filter(Boolean).length + (directionsComplete ? 1 : 0) + (alignmentsComplete ? 1 : 0);
+  routineCount.textContent = `${completedChecks} / 5`;
+  const readyToStart = completedChecks === 5 && state.moods.arrival.length > 0;
   startButton.disabled = !readyToStart || state.sessionStarted;
   startButton.textContent = state.sessionStarted ? "Session in progress" : "Start session";
   breakButton.textContent = state.takingBreak ? "Break noted for today" : "Taking a break today";
   breakButton.setAttribute("aria-pressed", String(Boolean(state.takingBreak)));
   breakSuggestions.hidden = !state.takingBreak;
   suggestionButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.suggestion === state.breakSuggestion)));
-  statusMessage.textContent = state.takingBreak ? (state.breakSuggestion ? `${state.breakSuggestion} sounds good. Take the time you need.` : "Good call. Rest is part of the process.") : state.sessionStarted ? "Stay with your plan. Check back in when you are done." : readyToStart ? `${state.moods.arrival.join(" + ")} noted. You are ready.` : completedChecks === 3 ? "Select at least one arrival emotion to begin." : "I'm proud of you for showing up for yourself.";
+  statusMessage.textContent = state.takingBreak ? (state.breakSuggestion ? `${state.breakSuggestion} sounds good. Take the time you need.` : "Good call. Rest is part of the process.") : state.sessionStarted ? "Stay with your plan. Check back in when you are done." : readyToStart ? `${state.moods.arrival.join(" + ")} noted. You are ready.` : completedChecks === 5 ? "Select at least one arrival emotion to begin." : "I'm proud of you for showing up for yourself.";
   statusMessage.classList.toggle("ready", readyToStart);
   moodGroups.forEach((group) => {
     const reminder = document.querySelector(`#${group}Reminder`);
@@ -166,6 +180,14 @@ sessionOptions.forEach((button) => button.addEventListener("click", () => {
 directionAssets.forEach((assetElement) => {
   assetElement.querySelectorAll(".direction-option").forEach((button) => button.addEventListener("click", () => {
     state.directions[assetElement.dataset.asset].trapped = button.dataset.trapped;
+    saveState();
+    render();
+  }));
+});
+
+alignmentAssets.forEach((assetElement) => {
+  assetElement.querySelectorAll(".alignment-option").forEach((button) => button.addEventListener("click", () => {
+    state.alignment[assetElement.dataset.alignmentAsset] = button.dataset.alignment;
     saveState();
     render();
   }));
@@ -294,6 +316,7 @@ function createReportImage() {
   const sections = [
     ["Trading session", state.session || "Not selected"],
     ["HTF trapped traders", ["GC", "NQ"].map((asset) => `${asset}: ${state.directions[asset].trapped || "Not selected"}`).join("; ")],
+    ["Additional M5/M15 LB aligned with HTF LB", ["GC", "NQ"].map((asset) => `${asset}: ${state.alignment[asset] || "Not selected"}`).join("; ")],
     ["Arrival emotions", reportValue(state.moods.arrival)],
     ["Trade setup rating", state.setupRating || "Not rated"],
     ["After-session emotions", reportValue(state.moods.after)],
@@ -381,6 +404,7 @@ function resetSession() {
   localStorage.removeItem("session-check-in");
   state.checks = [false, false, false];
   state.directions = { GC: { trapped: "" }, NQ: { trapped: "" } };
+  state.alignment = { GC: "", NQ: "" };
   state.session = "";
   state.sessionChoiceInitialized = true;
   state.moods = { arrival: [], trade1: [], trade2: [], after: [] };
