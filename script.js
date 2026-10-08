@@ -1,12 +1,12 @@
 const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton"), document.querySelector("#htfButton")];
 const sessionOptions = document.querySelectorAll(".session-option");
-const directionAssets = document.querySelectorAll(".direction-asset");
-const alignmentAssets = document.querySelectorAll(".alignment-asset");
-const trappedGuidance = {
-  Buyers: "Looking for a BUY entry",
-  Sellers: "Looking for a SELL entry",
-  Unclear: "Let's wait - no trades for now"
+const htfAssets = document.querySelectorAll(".htf-asset");
+const htfFieldOptions = {
+  pdSweep: ["PDL", "PDH", "Both", "Inside Bar"],
+  pdClose: ["Bullish", "Bearish", "Unclear"],
+  trappedTraders: ["Buyers", "Sellers", "Unclear"],
+  lowerTimeframeAlignment: ["Yes", "No", "Unclear"]
 };
 const tradeButtons = document.querySelectorAll(".trade-button");
 const themeButton = document.querySelector("#themeButton");
@@ -45,16 +45,23 @@ const emotionOptions = [
 
 state.checks = state.checks || [false, false];
 state.checks[2] = Boolean(state.checks[2]);
-state.directions = state.directions || {};
+const legacyDirections = state.directions && typeof state.directions === "object" ? state.directions : {};
+const legacyAlignment = state.alignment && typeof state.alignment === "object" ? state.alignment : {};
+state.htfAnalysis = state.htfAnalysis && typeof state.htfAnalysis === "object" && !Array.isArray(state.htfAnalysis) ? state.htfAnalysis : {};
 ["GC", "NQ"].forEach((asset) => {
-  const trapped = state.directions[asset]?.trapped;
-  state.directions[asset] = { trapped: Object.hasOwn(trappedGuidance, trapped) ? trapped : "" };
+  const savedAnalysis = state.htfAnalysis[asset] && typeof state.htfAnalysis[asset] === "object" ? state.htfAnalysis[asset] : {};
+  const trappedTraders = savedAnalysis.trappedTraders || legacyDirections[asset]?.trapped || "";
+  const lowerTimeframeAlignment = savedAnalysis.lowerTimeframeAlignment || legacyAlignment[asset] || "";
+  state.htfAnalysis[asset] = {
+    pdSweep: htfFieldOptions.pdSweep.includes(savedAnalysis.pdSweep) ? savedAnalysis.pdSweep : "",
+    pdClose: htfFieldOptions.pdClose.includes(savedAnalysis.pdClose) ? savedAnalysis.pdClose : "",
+    dailyCandleLocationEvaluated: Boolean(savedAnalysis.dailyCandleLocationEvaluated),
+    trappedTraders: htfFieldOptions.trappedTraders.includes(trappedTraders) ? trappedTraders : "",
+    lowerTimeframeAlignment: htfFieldOptions.lowerTimeframeAlignment.includes(lowerTimeframeAlignment) ? lowerTimeframeAlignment : ""
+  };
 });
-state.alignment = state.alignment && typeof state.alignment === "object" && !Array.isArray(state.alignment) ? state.alignment : {};
-["GC", "NQ"].forEach((asset) => {
-  const alignment = state.alignment[asset];
-  state.alignment[asset] = ["Yes", "No", "Unclear"].includes(alignment) ? alignment : "";
-});
+delete state.directions;
+delete state.alignment;
 if (!state.sessionChoiceInitialized) {
   state.session = "";
   state.sessionChoiceInitialized = true;
@@ -98,25 +105,17 @@ function render() {
     document.querySelector(`#${button.dataset.trade}Panel`).hidden = !active;
   });
   document.documentElement.dataset.theme = state.theme;
-  directionAssets.forEach((assetElement) => {
-    const asset = state.directions[assetElement.dataset.asset];
-    assetElement.querySelectorAll(".direction-option").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.trapped === asset.trapped));
-    });
-    const guidance = assetElement.querySelector(".trapped-guidance");
-    guidance.textContent = trappedGuidance[asset.trapped] || "";
-    guidance.hidden = !asset.trapped;
-  });
-  const directionsComplete = Object.values(state.directions).every((asset) => Boolean(asset.trapped));
-  document.querySelector("#directionItem").classList.toggle("complete", directionsComplete);
-  alignmentAssets.forEach((assetElement) => {
-    const alignment = state.alignment[assetElement.dataset.alignmentAsset];
-    assetElement.querySelectorAll(".alignment-option").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.alignment === alignment));
+  htfAssets.forEach((assetElement) => {
+    const asset = state.htfAnalysis[assetElement.dataset.htfAsset];
+    assetElement.querySelectorAll("[data-htf-field]").forEach((field) => {
+      const value = asset[field.dataset.htfField];
+      if (field.type === "checkbox") {
+        field.checked = value;
+      } else {
+        field.value = value;
+      }
     });
   });
-  const alignmentsComplete = Object.values(state.alignment).every(Boolean);
-  document.querySelector("#alignmentItem").classList.toggle("complete", alignmentsComplete);
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
   themeButton.setAttribute("aria-label", state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
   setupRating.hidden = !state.sessionStarted;
@@ -134,9 +133,9 @@ function render() {
   completeButton.setAttribute("aria-pressed", String(Boolean(state.sessionCompleted)));
   afterSession.hidden = !state.sessionCompleted;
   noteInput.value = state.note || "";
-  const completedChecks = state.checks.filter(Boolean).length + (directionsComplete ? 1 : 0) + (alignmentsComplete ? 1 : 0);
-  routineCount.textContent = `${completedChecks} / 5`;
-  const readyToStart = completedChecks === 5 && state.moods.arrival.length > 0;
+  const completedChecks = state.checks.filter(Boolean).length;
+  routineCount.textContent = `${completedChecks} / 3`;
+  const readyToStart = completedChecks === 3 && state.moods.arrival.length > 0;
   startButton.disabled = !readyToStart || state.sessionStarted;
   startButton.textContent = state.sessionStarted ? "Session in progress" : "Start session";
   breakButton.textContent = state.takingBreak ? "Break noted for today" : "Taking a break today";
@@ -177,17 +176,9 @@ sessionOptions.forEach((button) => button.addEventListener("click", () => {
   render();
 }));
 
-directionAssets.forEach((assetElement) => {
-  assetElement.querySelectorAll(".direction-option").forEach((button) => button.addEventListener("click", () => {
-    state.directions[assetElement.dataset.asset].trapped = button.dataset.trapped;
-    saveState();
-    render();
-  }));
-});
-
-alignmentAssets.forEach((assetElement) => {
-  assetElement.querySelectorAll(".alignment-option").forEach((button) => button.addEventListener("click", () => {
-    state.alignment[assetElement.dataset.alignmentAsset] = button.dataset.alignment;
+htfAssets.forEach((assetElement) => {
+  assetElement.querySelectorAll("[data-htf-field]").forEach((field) => field.addEventListener("change", () => {
+    state.htfAnalysis[assetElement.dataset.htfAsset][field.dataset.htfField] = field.type === "checkbox" ? field.checked : field.value;
     saveState();
     render();
   }));
@@ -313,10 +304,13 @@ function createReportImage() {
   const width = 1200;
   const padding = 78;
   const lineHeight = 32;
+  const htfReport = ["GC", "NQ"].map((asset) => {
+    const analysis = state.htfAnalysis[asset];
+    return `${asset}: PDL/PDH swept: ${analysis.pdSweep || "Not selected"}; PD close: ${analysis.pdClose || "Not selected"}; New Daily candle high/low evaluated: ${analysis.dailyCandleLocationEvaluated ? "Yes" : "No"}; HTF trap: ${analysis.trappedTraders || "Not selected"}; M5/M15 alignment: ${analysis.lowerTimeframeAlignment || "Not selected"}`;
+  }).join("; ");
   const sections = [
     ["Trading session", state.session || "Not selected"],
-    ["HTF trapped traders", ["GC", "NQ"].map((asset) => `${asset}: ${state.directions[asset].trapped || "Not selected"}`).join("; ")],
-    ["Additional M5/M15 LB aligned with HTF LB", ["GC", "NQ"].map((asset) => `${asset}: ${state.alignment[asset] || "Not selected"}`).join("; ")],
+    ["HTF analysis", htfReport],
     ["Arrival emotions", reportValue(state.moods.arrival)],
     ["Trade setup rating", state.setupRating || "Not rated"],
     ["After-session emotions", reportValue(state.moods.after)],
@@ -403,8 +397,10 @@ copyReportButton.addEventListener("click", copyReportImage);
 function resetSession() {
   localStorage.removeItem("session-check-in");
   state.checks = [false, false, false];
-  state.directions = { GC: { trapped: "" }, NQ: { trapped: "" } };
-  state.alignment = { GC: "", NQ: "" };
+  state.htfAnalysis = {
+    GC: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" },
+    NQ: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" }
+  };
   state.session = "";
   state.sessionChoiceInitialized = true;
   state.moods = { arrival: [], trade1: [], trade2: [], after: [] };
