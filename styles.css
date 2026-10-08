@@ -71,17 +71,16 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .check-copy { display: grid; gap: 4px; }
 .check-copy strong { color: var(--ink); font-size: 14px; font-weight: 600; transition: color .2s; }
 .check-copy small { color: var(--muted); font-size: 12px; line-height: 1.35; }
-.direction-item, .alignment-item { padding: 14px 0; border-bottom: 1px solid var(--line); }
-.direction-item-heading, .alignment-item-heading { display: flex; align-items: center; gap: 12px; }
-.direction-item.complete .check-box, .alignment-item.complete .check-box { color: var(--base); border-color: var(--green); background: var(--green); }
-.direction-item.complete .check-copy strong, .alignment-item.complete .check-copy strong { color: var(--green); }
-.direction-assets, .alignment-assets { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 14px 0 0 32px; }
-.direction-asset, .alignment-asset { min-width: 0; padding: 11px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-deep); }
-.direction-asset h3, .alignment-asset h3 { margin: 0 0 9px; color: var(--accent); font-family: "DM Mono", monospace; font-size: 12px; }
-.direction-options, .alignment-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-.direction-option, .alignment-option { min-height: 34px; padding: 6px 4px; color: var(--muted); border: 1px solid var(--line); border-radius: 5px; background: transparent; cursor: pointer; font-family: "DM Mono", monospace; font-size: 10px; font-weight: 700; }
-.direction-option[aria-pressed="true"], .alignment-option[aria-pressed="true"] { color: var(--ink); border-color: var(--green); background: rgba(147, 201, 166, .12); }
-.trapped-guidance { min-height: 12px; margin: 9px 0 0; color: var(--accent); font-size: 9px; font-weight: 700; line-height: 1.35; }
+.htf-details { padding: 12px 0 14px; border-bottom: 1px solid var(--line); }
+.htf-details summary { color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
+.htf-details summary::marker { color: var(--accent); }
+.htf-assets { display: grid; gap: 9px; margin-top: 12px; }
+.htf-asset { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-deep); }
+.htf-asset h3 { margin: 0 0 10px; color: var(--accent); font-family: "DM Mono", monospace; font-size: 12px; }
+.htf-field { display: grid; gap: 6px; margin-top: 10px; color: var(--muted); font-size: 11px; font-weight: 600; line-height: 1.4; }
+.htf-field select { width: 100%; min-height: 36px; padding: 7px 9px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font: inherit; }
+.htf-checkbox-field { display: flex; align-items: flex-start; gap: 8px; }
+.htf-checkbox-field input { flex: 0 0 auto; width: 16px; height: 16px; margin: 0; accent-color: var(--green); }
 .row-arrow { margin-left: auto; color: var(--dim); font-size: 22px; font-weight: 300; transition: transform .2s; }
 .check-row:hover .row-arrow { color: var(--accent); transform: translateX(3px); }
 .check-row .row-arrow { display: none; }
