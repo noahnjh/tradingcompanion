@@ -78,6 +78,7 @@ state.htfAnalysis = {};
     trappedTraders: phaseFieldOptions.trappedTraders.includes(legacyTrappedTraders) ? legacyTrappedTraders : "",
     evaluatingEntry: Boolean(savedHtf.evaluatingEntry),
     lowerTimeframeAlignment: phaseFieldOptions.lowerTimeframeAlignment.includes(lowerTimeframeAlignment) ? lowerTimeframeAlignment : "",
+    opposingLqNotTaken: Boolean(savedHtf.opposingLqNotTaken),
     trendLinesEvaluated: Boolean(savedHtf.trendLinesEvaluated ?? savedHtf.htfLtfTrendLineEvaluated)
   };
 });
@@ -362,7 +363,7 @@ function createReportImage() {
       "Building LQ": `HTF alerts set at LQ levels: ${analysis.buildingLqAlertsSet ? "Yes" : "No"}; LTF (M5/M15) evaluated for LB/LQ: ${analysis.evaluatedLtfForLbLq ? "Yes" : "No"}`,
       "Approaching Inducement/Trap LQ Level": `Trapping: ${analysis.approachingTrapSide || "Not selected"}; LB status: ${analysis.lbStatus || "Not selected"}`,
       "Just Induced/Trapped": `Trapped: ${analysis.trappedTraders || "Not selected"}; Evaluating for direct (HTF) or confirmation (LTF) entry: ${analysis.evaluatingEntry ? "Yes" : "No"}`,
-      "Induced/Trapped & Moved Away": `Trapped: ${analysis.trappedTraders || "Not selected"}; M5/M15 LB aligned with HTF LB: ${analysis.lowerTimeframeAlignment || "Not selected"}; HTF + LTF trend lines evaluated for confluence: ${analysis.trendLinesEvaluated ? "Yes" : "No"}`
+      "Induced/Trapped & Moved Away": `Trapped: ${analysis.trappedTraders || "Not selected"}; M5/M15 LB aligned with HTF LB: ${analysis.lowerTimeframeAlignment || "Not selected"}; Opposing LQ not yet taken: ${analysis.opposingLqNotTaken ? "Yes" : "No"}; HTF + LTF trend lines evaluated for confluence: ${analysis.trendLinesEvaluated ? "Yes" : "No"}`
     }[analysis.phase] || "";
     return `${asset}: Phase: ${analysis.phase || "Not selected"}${phaseDetails ? `; ${phaseDetails}` : ""}`;
   }).join("; ");
@@ -463,8 +464,8 @@ function resetSession() {
     NQ: { sentiment: "", pdSweep: "", newDayBias: "", potentialHighLowEvaluated: false }
   };
   state.htfAnalysis = {
-    GC: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", trendLinesEvaluated: false },
-    NQ: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", trendLinesEvaluated: false }
+    GC: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", opposingLqNotTaken: false, trendLinesEvaluated: false },
+    NQ: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", opposingLqNotTaken: false, trendLinesEvaluated: false }
   };
   state.session = "";
   state.sessionChoiceInitialized = true;
