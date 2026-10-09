@@ -56,6 +56,7 @@ state.htfAnalysis = state.htfAnalysis && typeof state.htfAnalysis === "object" &
     pdSweep: htfFieldOptions.pdSweep.includes(savedAnalysis.pdSweep) ? savedAnalysis.pdSweep : "",
     pdClose: htfFieldOptions.pdClose.includes(savedAnalysis.pdClose) ? savedAnalysis.pdClose : "",
     dailyCandleLocationEvaluated: Boolean(savedAnalysis.dailyCandleLocationEvaluated),
+    htfLtfTrendLineEvaluated: Boolean(savedAnalysis.htfLtfTrendLineEvaluated),
     trappedTraders: htfFieldOptions.trappedTraders.includes(trappedTraders) ? trappedTraders : "",
     lowerTimeframeAlignment: htfFieldOptions.lowerTimeframeAlignment.includes(lowerTimeframeAlignment) ? lowerTimeframeAlignment : ""
   };
@@ -306,7 +307,7 @@ function createReportImage() {
   const lineHeight = 32;
   const htfReport = ["GC", "NQ"].map((asset) => {
     const analysis = state.htfAnalysis[asset];
-    return `${asset}: PDL/PDH swept: ${analysis.pdSweep || "Not selected"}; PD close: ${analysis.pdClose || "Not selected"}; New Daily candle high/low evaluated: ${analysis.dailyCandleLocationEvaluated ? "Yes" : "No"}; HTF trap: ${analysis.trappedTraders || "Not selected"}; M5/M15 alignment: ${analysis.lowerTimeframeAlignment || "Not selected"}`;
+    return `${asset}: PDL/PDH swept: ${analysis.pdSweep || "Not selected"}; PD close: ${analysis.pdClose || "Not selected"}; HTF trap: ${analysis.trappedTraders || "Not selected"}; M5/M15 alignment: ${analysis.lowerTimeframeAlignment || "Not selected"}; New Daily candle high/low evaluated: ${analysis.dailyCandleLocationEvaluated ? "Yes" : "No"}; HTF/LTF trend line evaluated for reference: ${analysis.htfLtfTrendLineEvaluated ? "Yes" : "No"}`;
   }).join("; ");
   const sections = [
     ["Trading session", state.session || "Not selected"],
@@ -398,8 +399,8 @@ function resetSession() {
   localStorage.removeItem("session-check-in");
   state.checks = [false, false, false];
   state.htfAnalysis = {
-    GC: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" },
-    NQ: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" }
+    GC: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, htfLtfTrendLineEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" },
+    NQ: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, htfLtfTrendLineEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" }
   };
   state.session = "";
   state.sessionChoiceInitialized = true;
