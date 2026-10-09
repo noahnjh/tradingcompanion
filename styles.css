@@ -71,9 +71,9 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .check-copy { display: grid; gap: 4px; }
 .check-copy strong { color: var(--ink); font-size: 14px; font-weight: 600; transition: color .2s; }
 .check-copy small { color: var(--muted); font-size: 12px; line-height: 1.35; }
-.htf-details { padding: 12px 0 14px; border-bottom: 1px solid var(--line); }
-.htf-details summary { color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
-.htf-details summary::marker { color: var(--accent); }
+.analysis-details { padding: 12px 0 14px; border-bottom: 1px solid var(--line); }
+.analysis-details summary { color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
+.analysis-details summary::marker { color: var(--accent); }
 .htf-assets { display: grid; gap: 9px; margin-top: 12px; }
 .htf-asset { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-deep); }
 .htf-asset h3 { margin: 0 0 10px; color: var(--accent); font-family: "DM Mono", monospace; font-size: 12px; }
