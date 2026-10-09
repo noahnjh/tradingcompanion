@@ -37,7 +37,7 @@
       <section class="checklist" aria-labelledby="routineHeading">
         <div class="section-label">
           <h2 id="routineHeading">Before you trade</h2>
-          <span class="count" id="routineCount">0 / 3</span>
+          <span class="count" id="routineCount">0 / 2</span>
         </div>
 
         <button class="check-row" id="ackButton" type="button" aria-pressed="false">
@@ -48,18 +48,23 @@
           <span class="check-box" aria-hidden="true">✓</span>
           <span class="check-copy"><strong>I've checked for upcoming news</strong><small>Know what can move the market before you enter.</small></span>
         </button>
-        <button class="check-row" id="htfButton" type="button" aria-pressed="false">
-          <span class="check-box" aria-hidden="true">✓</span>
-          <span class="check-copy"><strong>I've completed HTF analysis</strong><small>My higher-timeframe context is clear before I enter.</small></span>
-        </button>
-        <details class="htf-details">
-          <summary>GC and NQ HTF analysis details</summary>
+        <details class="analysis-details">
+          <summary>Daily Chart Analysis</summary>
           <div class="htf-assets">
-            <section class="htf-asset" data-htf-asset="GC" aria-labelledby="gcAnalysisHeading">
-              <h3 id="gcAnalysisHeading">GC</h3>
+            <section class="htf-asset" data-daily-asset="GC" aria-labelledby="gcDailyHeading">
+              <h3 id="gcDailyHeading">GC</h3>
+              <label class="htf-field">
+                <span>Overall sentiment based on induce/trap model</span>
+                <select data-daily-field="sentiment">
+                  <option value="">Select an answer</option>
+                  <option value="Bullish">Bullish</option>
+                  <option value="Bearish">Bearish</option>
+                  <option value="Unclear">Unclear</option>
+                </select>
+              </label>
               <label class="htf-field">
                 <span>PDL or PDH swept/taken?</span>
-                <select data-htf-field="pdSweep">
+                <select data-daily-field="pdSweep">
                   <option value="">Select an answer</option>
                   <option value="PDL">PDL</option>
                   <option value="PDH">PDH</option>
@@ -68,46 +73,33 @@
                 </select>
               </label>
               <label class="htf-field">
-                <span>PD closed looking bullish or bearish?</span>
-                <select data-htf-field="pdClose">
+                <span>New Day bias based on PD closure/overall sentiment</span>
+                <select data-daily-field="newDayBias">
                   <option value="">Select an answer</option>
                   <option value="Bullish">Bullish</option>
                   <option value="Bearish">Bearish</option>
                   <option value="Unclear">Unclear</option>
                 </select>
               </label>
-              <label class="htf-field">
-                <span>HTF induce + trap with LB and LQ target?</span>
-                <select data-htf-field="trappedTraders">
-                  <option value="">Select an answer</option>
-                  <option value="Buyers">Buyers</option>
-                  <option value="Sellers">Sellers</option>
-                  <option value="Unclear">Unclear</option>
-                </select>
-              </label>
-              <label class="htf-field">
-                <span>Additional M5/M15 LB aligned with HTF LB?</span>
-                <select data-htf-field="lowerTimeframeAlignment">
-                  <option value="">Select an answer</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                  <option value="Unclear">Unclear</option>
-                </select>
-              </label>
               <label class="htf-field htf-checkbox-field">
-                <input type="checkbox" data-htf-field="dailyCandleLocationEvaluated" />
-                <span>Possible high/low location of new Daily candle evaluated</span>
-              </label>
-              <label class="htf-field htf-checkbox-field">
-                <input type="checkbox" data-htf-field="htfLtfTrendLineEvaluated" />
-                <span>Evaluated HTF/LTF trend line for reference</span>
+                <input type="checkbox" data-daily-field="potentialHighLowEvaluated" />
+                <span>Potential high/low of new Daily candle evaluated</span>
               </label>
             </section>
-            <section class="htf-asset" data-htf-asset="NQ" aria-labelledby="nqAnalysisHeading">
-              <h3 id="nqAnalysisHeading">NQ</h3>
+            <section class="htf-asset" data-daily-asset="NQ" aria-labelledby="nqDailyHeading">
+              <h3 id="nqDailyHeading">NQ</h3>
+              <label class="htf-field">
+                <span>Overall sentiment based on induce/trap model</span>
+                <select data-daily-field="sentiment">
+                  <option value="">Select an answer</option>
+                  <option value="Bullish">Bullish</option>
+                  <option value="Bearish">Bearish</option>
+                  <option value="Unclear">Unclear</option>
+                </select>
+              </label>
               <label class="htf-field">
                 <span>PDL or PDH swept/taken?</span>
-                <select data-htf-field="pdSweep">
+                <select data-daily-field="pdSweep">
                   <option value="">Select an answer</option>
                   <option value="PDL">PDL</option>
                   <option value="PDH">PDH</option>
@@ -116,40 +108,177 @@
                 </select>
               </label>
               <label class="htf-field">
-                <span>PD closed looking bullish or bearish?</span>
-                <select data-htf-field="pdClose">
+                <span>New Day bias based on PD closure/overall sentiment</span>
+                <select data-daily-field="newDayBias">
                   <option value="">Select an answer</option>
                   <option value="Bullish">Bullish</option>
                   <option value="Bearish">Bearish</option>
                   <option value="Unclear">Unclear</option>
                 </select>
               </label>
+              <label class="htf-field htf-checkbox-field">
+                <input type="checkbox" data-daily-field="potentialHighLowEvaluated" />
+                <span>Potential high/low of new Daily candle evaluated</span>
+              </label>
+            </section>
+          </div>
+        </details>
+        <details class="analysis-details">
+          <summary>HTF Phase of Price (H1/H4)</summary>
+          <div class="htf-assets">
+            <section class="htf-asset" data-phase-asset="GC" aria-labelledby="gcPhaseHeading">
+              <h3 id="gcPhaseHeading">GC</h3>
               <label class="htf-field">
-                <span>HTF induce + trap with LB and LQ target?</span>
-                <select data-htf-field="trappedTraders">
-                  <option value="">Select an answer</option>
-                  <option value="Buyers">Buyers</option>
-                  <option value="Sellers">Sellers</option>
-                  <option value="Unclear">Unclear</option>
+                <span>HTF Phase of Price (H1/H4)</span>
+                <select data-phase-field="phase">
+                  <option value="">Select a phase</option>
+                  <option value="Building LQ">Building LQ</option>
+                  <option value="Approaching Inducement/Trap LQ Level">Approaching Inducement/Trap LQ Level</option>
+                  <option value="Just Induced/Trapped">Just Induced/Trapped</option>
+                  <option value="Induced/Trapped & Moved Away">Induced/Trapped &amp; Moved Away</option>
                 </select>
               </label>
+              <div class="phase-fields" data-phase-content="Building LQ" hidden>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="buildingLqAlertsSet" />
+                  <span>HTF alerts set at LQ levels</span>
+                </label>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="evaluatedLtfForLbLq" />
+                  <span>Evaluated LTF (M5/M15) for LB/LQ</span>
+                </label>
+              </div>
+              <div class="phase-fields" data-phase-content="Approaching Inducement/Trap LQ Level" hidden>
+                <label class="htf-field">
+                  <span>Who is being trapped?</span>
+                  <select data-phase-field="approachingTrapSide">
+                    <option value="">Select an answer</option>
+                    <option value="Trapping Buyers">Trapping Buyers</option>
+                    <option value="Trapping Sellers">Trapping Sellers</option>
+                  </select>
+                </label>
+                <label class="htf-field">
+                  <span>LB status</span>
+                  <select data-phase-field="lbStatus">
+                    <option value="">Select an answer</option>
+                    <option value="LB on left">LB on left</option>
+                    <option value="No LB yet">No LB yet</option>
+                  </select>
+                </label>
+              </div>
+              <div class="phase-fields" data-phase-content="Just Induced/Trapped" hidden>
+                <label class="htf-field">
+                  <span>Who was trapped?</span>
+                  <select data-phase-field="trappedTraders">
+                    <option value="">Select an answer</option>
+                    <option value="Trapped Buyers">Trapped Buyers</option>
+                    <option value="Trapped Sellers">Trapped Sellers</option>
+                  </select>
+                </label>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="evaluatingEntry" />
+                  <span>Evaluating for direct (HTF) or confirmation (LTF) entry</span>
+                </label>
+              </div>
+              <div class="phase-fields" data-phase-content="Induced/Trapped &amp; Moved Away" hidden>
+                <label class="htf-field">
+                  <span>Who was trapped?</span>
+                  <select data-phase-field="trappedTraders">
+                    <option value="">Select an answer</option>
+                    <option value="Trapped Buyers">Trapped Buyers</option>
+                    <option value="Trapped Sellers">Trapped Sellers</option>
+                  </select>
+                </label>
+                <label class="htf-field">
+                  <span>Identified M5/M15 LB aligned with HTF LB?</span>
+                  <select data-phase-field="lowerTimeframeAlignment">
+                    <option value="">Select an answer</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </label>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="trendLinesEvaluated" />
+                  <span>Evaluated HTF + LTF trend lines (structure) for confluence (optional)</span>
+                </label>
+              </div>
+            </section>
+            <section class="htf-asset" data-phase-asset="NQ" aria-labelledby="nqPhaseHeading">
+              <h3 id="nqPhaseHeading">NQ</h3>
               <label class="htf-field">
-                <span>Additional M5/M15 LB aligned with HTF LB?</span>
-                <select data-htf-field="lowerTimeframeAlignment">
-                  <option value="">Select an answer</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                  <option value="Unclear">Unclear</option>
+                <span>HTF Phase of Price (H1/H4)</span>
+                <select data-phase-field="phase">
+                  <option value="">Select a phase</option>
+                  <option value="Building LQ">Building LQ</option>
+                  <option value="Approaching Inducement/Trap LQ Level">Approaching Inducement/Trap LQ Level</option>
+                  <option value="Just Induced/Trapped">Just Induced/Trapped</option>
+                  <option value="Induced/Trapped &amp; Moved Away">Induced/Trapped &amp; Moved Away</option>
                 </select>
               </label>
-              <label class="htf-field htf-checkbox-field">
-                <input type="checkbox" data-htf-field="dailyCandleLocationEvaluated" />
-                <span>Possible high/low location of new Daily candle evaluated</span>
-              </label>
-              <label class="htf-field htf-checkbox-field">
-                <input type="checkbox" data-htf-field="htfLtfTrendLineEvaluated" />
-                <span>Evaluated HTF/LTF trend line for reference</span>
-              </label>
+              <div class="phase-fields" data-phase-content="Building LQ" hidden>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="buildingLqAlertsSet" />
+                  <span>HTF alerts set at LQ levels</span>
+                </label>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="evaluatedLtfForLbLq" />
+                  <span>Evaluated LTF (M5/M15) for LB/LQ</span>
+                </label>
+              </div>
+              <div class="phase-fields" data-phase-content="Approaching Inducement/Trap LQ Level" hidden>
+                <label class="htf-field">
+                  <span>Who is being trapped?</span>
+                  <select data-phase-field="approachingTrapSide">
+                    <option value="">Select an answer</option>
+                    <option value="Trapping Buyers">Trapping Buyers</option>
+                    <option value="Trapping Sellers">Trapping Sellers</option>
+                  </select>
+                </label>
+                <label class="htf-field">
+                  <span>LB status</span>
+                  <select data-phase-field="lbStatus">
+                    <option value="">Select an answer</option>
+                    <option value="LB on left">LB on left</option>
+                    <option value="No LB yet">No LB yet</option>
+                  </select>
+                </label>
+              </div>
+              <div class="phase-fields" data-phase-content="Just Induced/Trapped" hidden>
+                <label class="htf-field">
+                  <span>Who was trapped?</span>
+                  <select data-phase-field="trappedTraders">
+                    <option value="">Select an answer</option>
+                    <option value="Trapped Buyers">Trapped Buyers</option>
+                    <option value="Trapped Sellers">Trapped Sellers</option>
+                  </select>
+                </label>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="evaluatingEntry" />
+                  <span>Evaluating for direct (HTF) or confirmation (LTF) entry</span>
+                </label>
+              </div>
+              <div class="phase-fields" data-phase-content="Induced/Trapped &amp; Moved Away" hidden>
+                <label class="htf-field">
+                  <span>Who was trapped?</span>
+                  <select data-phase-field="trappedTraders">
+                    <option value="">Select an answer</option>
+                    <option value="Trapped Buyers">Trapped Buyers</option>
+                    <option value="Trapped Sellers">Trapped Sellers</option>
+                  </select>
+                </label>
+                <label class="htf-field">
+                  <span>Identified M5/M15 LB aligned with HTF LB?</span>
+                  <select data-phase-field="lowerTimeframeAlignment">
+                    <option value="">Select an answer</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </label>
+                <label class="htf-field htf-checkbox-field">
+                  <input type="checkbox" data-phase-field="trendLinesEvaluated" />
+                  <span>Evaluated HTF + LTF trend lines (structure) for confluence (optional)</span>
+                </label>
+              </div>
             </section>
           </div>
         </details>

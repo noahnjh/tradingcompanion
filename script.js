@@ -1,12 +1,19 @@
 const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
-const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton"), document.querySelector("#htfButton")];
+const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton")];
 const sessionOptions = document.querySelectorAll(".session-option");
-const htfAssets = document.querySelectorAll(".htf-asset");
-const htfFieldOptions = {
+const dailyAssets = document.querySelectorAll("[data-daily-asset]");
+const phaseAssets = document.querySelectorAll("[data-phase-asset]");
+const dailyFieldOptions = {
+  sentiment: ["Bullish", "Bearish", "Unclear"],
   pdSweep: ["PDL", "PDH", "Both", "Inside Bar"],
-  pdClose: ["Bullish", "Bearish", "Unclear"],
-  trappedTraders: ["Buyers", "Sellers", "Unclear"],
-  lowerTimeframeAlignment: ["Yes", "No", "Unclear"]
+  newDayBias: ["Bullish", "Bearish", "Unclear"]
+};
+const phaseOptions = ["Building LQ", "Approaching Inducement/Trap LQ Level", "Just Induced/Trapped", "Induced/Trapped & Moved Away"];
+const phaseFieldOptions = {
+  approachingTrapSide: ["Trapping Buyers", "Trapping Sellers"],
+  lbStatus: ["LB on left", "No LB yet"],
+  trappedTraders: ["Trapped Buyers", "Trapped Sellers"],
+  lowerTimeframeAlignment: ["Yes", "No"]
 };
 const tradeButtons = document.querySelectorAll(".trade-button");
 const themeButton = document.querySelector("#themeButton");
@@ -43,22 +50,35 @@ const emotionOptions = [
   "Angry", "Disappointed", "Fearful", "Impatient", "Impulsive", "Hopeful", "Tired", "Distracted", "Revengeful", "Hesitant"
 ];
 
-state.checks = state.checks || [false, false];
-state.checks[2] = Boolean(state.checks[2]);
+state.checks = Array.isArray(state.checks) ? [Boolean(state.checks[0]), Boolean(state.checks[1])] : [false, false];
 const legacyDirections = state.directions && typeof state.directions === "object" ? state.directions : {};
 const legacyAlignment = state.alignment && typeof state.alignment === "object" ? state.alignment : {};
-state.htfAnalysis = state.htfAnalysis && typeof state.htfAnalysis === "object" && !Array.isArray(state.htfAnalysis) ? state.htfAnalysis : {};
+const legacyHtfAnalysis = state.htfAnalysis && typeof state.htfAnalysis === "object" && !Array.isArray(state.htfAnalysis) ? state.htfAnalysis : {};
+const savedDailyAnalysis = state.dailyAnalysis && typeof state.dailyAnalysis === "object" && !Array.isArray(state.dailyAnalysis) ? state.dailyAnalysis : {};
+state.dailyAnalysis = {};
+state.htfAnalysis = {};
 ["GC", "NQ"].forEach((asset) => {
-  const savedAnalysis = state.htfAnalysis[asset] && typeof state.htfAnalysis[asset] === "object" ? state.htfAnalysis[asset] : {};
-  const trappedTraders = savedAnalysis.trappedTraders || legacyDirections[asset]?.trapped || "";
-  const lowerTimeframeAlignment = savedAnalysis.lowerTimeframeAlignment || legacyAlignment[asset] || "";
+  const savedDaily = savedDailyAnalysis[asset] && typeof savedDailyAnalysis[asset] === "object" ? savedDailyAnalysis[asset] : {};
+  const savedHtf = legacyHtfAnalysis[asset] && typeof legacyHtfAnalysis[asset] === "object" ? legacyHtfAnalysis[asset] : {};
+  const trappedTraders = savedHtf.trappedTraders || legacyDirections[asset]?.trapped || "";
+  const lowerTimeframeAlignment = savedHtf.lowerTimeframeAlignment || legacyAlignment[asset] || "";
+  const legacyTrappedTraders = trappedTraders === "Buyers" ? "Trapped Buyers" : trappedTraders === "Sellers" ? "Trapped Sellers" : trappedTraders;
+  state.dailyAnalysis[asset] = {
+    sentiment: dailyFieldOptions.sentiment.includes(savedDaily.sentiment) ? savedDaily.sentiment : "",
+    pdSweep: dailyFieldOptions.pdSweep.includes(savedDaily.pdSweep || savedHtf.pdSweep) ? (savedDaily.pdSweep || savedHtf.pdSweep) : "",
+    newDayBias: dailyFieldOptions.newDayBias.includes(savedDaily.newDayBias) ? savedDaily.newDayBias : "",
+    potentialHighLowEvaluated: Boolean(savedDaily.potentialHighLowEvaluated ?? savedHtf.dailyCandleLocationEvaluated)
+  };
   state.htfAnalysis[asset] = {
-    pdSweep: htfFieldOptions.pdSweep.includes(savedAnalysis.pdSweep) ? savedAnalysis.pdSweep : "",
-    pdClose: htfFieldOptions.pdClose.includes(savedAnalysis.pdClose) ? savedAnalysis.pdClose : "",
-    dailyCandleLocationEvaluated: Boolean(savedAnalysis.dailyCandleLocationEvaluated),
-    htfLtfTrendLineEvaluated: Boolean(savedAnalysis.htfLtfTrendLineEvaluated),
-    trappedTraders: htfFieldOptions.trappedTraders.includes(trappedTraders) ? trappedTraders : "",
-    lowerTimeframeAlignment: htfFieldOptions.lowerTimeframeAlignment.includes(lowerTimeframeAlignment) ? lowerTimeframeAlignment : ""
+    phase: phaseOptions.includes(savedHtf.phase) ? savedHtf.phase : "",
+    buildingLqAlertsSet: Boolean(savedHtf.buildingLqAlertsSet),
+    evaluatedLtfForLbLq: Boolean(savedHtf.evaluatedLtfForLbLq),
+    approachingTrapSide: phaseFieldOptions.approachingTrapSide.includes(savedHtf.approachingTrapSide) ? savedHtf.approachingTrapSide : "",
+    lbStatus: phaseFieldOptions.lbStatus.includes(savedHtf.lbStatus) ? savedHtf.lbStatus : "",
+    trappedTraders: phaseFieldOptions.trappedTraders.includes(legacyTrappedTraders) ? legacyTrappedTraders : "",
+    evaluatingEntry: Boolean(savedHtf.evaluatingEntry),
+    lowerTimeframeAlignment: phaseFieldOptions.lowerTimeframeAlignment.includes(lowerTimeframeAlignment) ? lowerTimeframeAlignment : "",
+    trendLinesEvaluated: Boolean(savedHtf.trendLinesEvaluated ?? savedHtf.htfLtfTrendLineEvaluated)
   };
 });
 delete state.directions;
@@ -106,15 +126,29 @@ function render() {
     document.querySelector(`#${button.dataset.trade}Panel`).hidden = !active;
   });
   document.documentElement.dataset.theme = state.theme;
-  htfAssets.forEach((assetElement) => {
-    const asset = state.htfAnalysis[assetElement.dataset.htfAsset];
-    assetElement.querySelectorAll("[data-htf-field]").forEach((field) => {
-      const value = asset[field.dataset.htfField];
+  dailyAssets.forEach((assetElement) => {
+    const asset = state.dailyAnalysis[assetElement.dataset.dailyAsset];
+    assetElement.querySelectorAll("[data-daily-field]").forEach((field) => {
+      const value = asset[field.dataset.dailyField];
       if (field.type === "checkbox") {
         field.checked = value;
       } else {
         field.value = value;
       }
+    });
+  });
+  phaseAssets.forEach((assetElement) => {
+    const asset = state.htfAnalysis[assetElement.dataset.phaseAsset];
+    assetElement.querySelectorAll("[data-phase-field]").forEach((field) => {
+      const value = asset[field.dataset.phaseField];
+      if (field.type === "checkbox") {
+        field.checked = value;
+      } else {
+        field.value = value;
+      }
+    });
+    assetElement.querySelectorAll("[data-phase-content]").forEach((content) => {
+      content.hidden = content.dataset.phaseContent !== asset.phase;
     });
   });
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
@@ -135,15 +169,15 @@ function render() {
   afterSession.hidden = !state.sessionCompleted;
   noteInput.value = state.note || "";
   const completedChecks = state.checks.filter(Boolean).length;
-  routineCount.textContent = `${completedChecks} / 3`;
-  const readyToStart = completedChecks === 3 && state.moods.arrival.length > 0;
+  routineCount.textContent = `${completedChecks} / 2`;
+  const readyToStart = completedChecks === 2 && state.moods.arrival.length > 0;
   startButton.disabled = !readyToStart || state.sessionStarted;
   startButton.textContent = state.sessionStarted ? "Session in progress" : "Start session";
   breakButton.textContent = state.takingBreak ? "Break noted for today" : "Taking a break today";
   breakButton.setAttribute("aria-pressed", String(Boolean(state.takingBreak)));
   breakSuggestions.hidden = !state.takingBreak;
   suggestionButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.suggestion === state.breakSuggestion)));
-  statusMessage.textContent = state.takingBreak ? (state.breakSuggestion ? `${state.breakSuggestion} sounds good. Take the time you need.` : "Good call. Rest is part of the process.") : state.sessionStarted ? "Stay with your plan. Check back in when you are done." : readyToStart ? `${state.moods.arrival.join(" + ")} noted. You are ready.` : completedChecks === 5 ? "Select at least one arrival emotion to begin." : "I'm proud of you for showing up for yourself.";
+  statusMessage.textContent = state.takingBreak ? (state.breakSuggestion ? `${state.breakSuggestion} sounds good. Take the time you need.` : "Good call. Rest is part of the process.") : state.sessionStarted ? "Stay with your plan. Check back in when you are done." : readyToStart ? `${state.moods.arrival.join(" + ")} noted. You are ready.` : completedChecks === 2 ? "Select at least one arrival emotion to begin." : "I'm proud of you for showing up for yourself.";
   statusMessage.classList.toggle("ready", readyToStart);
   moodGroups.forEach((group) => {
     const reminder = document.querySelector(`#${group}Reminder`);
@@ -177,9 +211,17 @@ sessionOptions.forEach((button) => button.addEventListener("click", () => {
   render();
 }));
 
-htfAssets.forEach((assetElement) => {
-  assetElement.querySelectorAll("[data-htf-field]").forEach((field) => field.addEventListener("change", () => {
-    state.htfAnalysis[assetElement.dataset.htfAsset][field.dataset.htfField] = field.type === "checkbox" ? field.checked : field.value;
+dailyAssets.forEach((assetElement) => {
+  assetElement.querySelectorAll("[data-daily-field]").forEach((field) => field.addEventListener("change", () => {
+    state.dailyAnalysis[assetElement.dataset.dailyAsset][field.dataset.dailyField] = field.type === "checkbox" ? field.checked : field.value;
+    saveState();
+    render();
+  }));
+});
+
+phaseAssets.forEach((assetElement) => {
+  assetElement.querySelectorAll("[data-phase-field]").forEach((field) => field.addEventListener("change", () => {
+    state.htfAnalysis[assetElement.dataset.phaseAsset][field.dataset.phaseField] = field.type === "checkbox" ? field.checked : field.value;
     saveState();
     render();
   }));
@@ -278,7 +320,7 @@ setupRatingOptions.forEach((button) => button.addEventListener("click", () => {
   render();
 }));
 
-function drawReportText(context, text, x, y, maxWidth, lineHeight) {
+function wrapReportText(context, text, maxWidth) {
   const words = String(text).split(" ");
   let line = "";
   const lines = [];
@@ -292,6 +334,11 @@ function drawReportText(context, text, x, y, maxWidth, lineHeight) {
     }
   });
   if (line) lines.push(line);
+  return lines;
+}
+
+function drawReportText(context, text, x, y, maxWidth, lineHeight) {
+  const lines = wrapReportText(context, text, maxWidth);
   lines.forEach((currentLine, index) => context.fillText(currentLine, x, y + index * lineHeight));
   return y + Math.max(lines.length, 1) * lineHeight;
 }
@@ -305,13 +352,24 @@ function createReportImage() {
   const width = 1200;
   const padding = 78;
   const lineHeight = 32;
+  const dailyReport = ["GC", "NQ"].map((asset) => {
+    const analysis = state.dailyAnalysis[asset];
+    return `${asset}: Overall sentiment: ${analysis.sentiment || "Not selected"}; PDL/PDH swept: ${analysis.pdSweep || "Not selected"}; New Day bias: ${analysis.newDayBias || "Not selected"}; Potential new Daily candle high/low evaluated: ${analysis.potentialHighLowEvaluated ? "Yes" : "No"}`;
+  }).join("; ");
   const htfReport = ["GC", "NQ"].map((asset) => {
     const analysis = state.htfAnalysis[asset];
-    return `${asset}: PDL/PDH swept: ${analysis.pdSweep || "Not selected"}; PD close: ${analysis.pdClose || "Not selected"}; HTF trap: ${analysis.trappedTraders || "Not selected"}; M5/M15 alignment: ${analysis.lowerTimeframeAlignment || "Not selected"}; New Daily candle high/low evaluated: ${analysis.dailyCandleLocationEvaluated ? "Yes" : "No"}; HTF/LTF trend line evaluated for reference: ${analysis.htfLtfTrendLineEvaluated ? "Yes" : "No"}`;
+    const phaseDetails = {
+      "Building LQ": `HTF alerts set at LQ levels: ${analysis.buildingLqAlertsSet ? "Yes" : "No"}; LTF (M5/M15) evaluated for LB/LQ: ${analysis.evaluatedLtfForLbLq ? "Yes" : "No"}`,
+      "Approaching Inducement/Trap LQ Level": `Trapping: ${analysis.approachingTrapSide || "Not selected"}; LB status: ${analysis.lbStatus || "Not selected"}`,
+      "Just Induced/Trapped": `Trapped: ${analysis.trappedTraders || "Not selected"}; Evaluating for direct (HTF) or confirmation (LTF) entry: ${analysis.evaluatingEntry ? "Yes" : "No"}`,
+      "Induced/Trapped & Moved Away": `Trapped: ${analysis.trappedTraders || "Not selected"}; M5/M15 LB aligned with HTF LB: ${analysis.lowerTimeframeAlignment || "Not selected"}; HTF + LTF trend lines evaluated for confluence: ${analysis.trendLinesEvaluated ? "Yes" : "No"}`
+    }[analysis.phase] || "";
+    return `${asset}: Phase: ${analysis.phase || "Not selected"}${phaseDetails ? `; ${phaseDetails}` : ""}`;
   }).join("; ");
   const sections = [
     ["Trading session", state.session || "Not selected"],
-    ["HTF analysis", htfReport],
+    ["Daily Chart Analysis", dailyReport],
+    ["HTF Phase of Price (H1/H4)", htfReport],
     ["Arrival emotions", reportValue(state.moods.arrival)],
     ["Trade setup rating", state.setupRating || "Not rated"],
     ["After-session emotions", reportValue(state.moods.after)],
@@ -320,10 +378,12 @@ function createReportImage() {
   if (state.moods.trade1.length > 0 || state.moods.trade2.length > 0) {
     sections.splice(2, 0, ["Trade 1 emotions", reportValue(state.moods.trade1)], ["Trade 2 emotions", reportValue(state.moods.trade2)]);
   }
-  const canvasHeight = 320 + sections.length * 88 + 96;
   canvas.width = width;
-  canvas.height = canvasHeight;
   const context = canvas.getContext("2d");
+  context.font = "500 22px Manrope, sans-serif";
+  const contentWidth = width - padding * 2 - 76;
+  const canvasHeight = Math.max(416, 330 + sections.reduce((height, [, value]) => height + 80 + wrapReportText(context, value, contentWidth).length * lineHeight, 0));
+  canvas.height = canvasHeight;
   const isLight = state.theme === "light";
   const colors = isLight ? { background: "#f4f7f3", ink: "#18221e", muted: "#64736a", accent: "#b36f25", line: "#d5ded8", panel: "#e8eeea" } : { background: "#131b19", ink: "#e8eee8", muted: "#8f9b92", accent: "#e5ad62", line: "#283530", panel: "#17211e" };
   context.fillStyle = colors.background;
@@ -397,10 +457,14 @@ copyReportButton.addEventListener("click", copyReportImage);
 
 function resetSession() {
   localStorage.removeItem("session-check-in");
-  state.checks = [false, false, false];
+  state.checks = [false, false];
+  state.dailyAnalysis = {
+    GC: { sentiment: "", pdSweep: "", newDayBias: "", potentialHighLowEvaluated: false },
+    NQ: { sentiment: "", pdSweep: "", newDayBias: "", potentialHighLowEvaluated: false }
+  };
   state.htfAnalysis = {
-    GC: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, htfLtfTrendLineEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" },
-    NQ: { pdSweep: "", pdClose: "", dailyCandleLocationEvaluated: false, htfLtfTrendLineEvaluated: false, trappedTraders: "", lowerTimeframeAlignment: "" }
+    GC: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", trendLinesEvaluated: false },
+    NQ: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", trendLinesEvaluated: false }
   };
   state.session = "";
   state.sessionChoiceInitialized = true;
