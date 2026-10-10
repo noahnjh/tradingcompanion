@@ -3,6 +3,8 @@ const checks = [document.querySelector("#ackButton"), document.querySelector("#n
 const sessionOptions = document.querySelectorAll(".session-option");
 const dailyAssets = document.querySelectorAll("[data-daily-asset]");
 const phaseAssets = document.querySelectorAll("[data-phase-asset]");
+const dailyAnalysisSection = document.querySelector('[data-analysis-section="daily"]');
+const phaseAnalysisSection = document.querySelector('[data-analysis-section="phase"]');
 const dailyFieldOptions = {
   sentiment: ["Bullish", "Bearish", "Unclear"],
   pdSweep: ["PDL", "PDH", "Both", "Inside Bar"],
@@ -114,6 +116,17 @@ function saveState() {
   localStorage.setItem("session-check-in", JSON.stringify(state));
 }
 
+function allApplicableSelectsAnswered(assetElements, fieldSelector, getAnalysis) {
+  return Array.from(assetElements).every((assetElement) => {
+    const analysis = getAnalysis(assetElement);
+    const selects = Array.from(assetElement.querySelectorAll(fieldSelector)).filter((select) => {
+      const phaseContent = select.closest("[data-phase-content]");
+      return !phaseContent || phaseContent.dataset.phaseContent === analysis.phase;
+    });
+    return selects.length > 0 && selects.every((select) => select.value !== "");
+  });
+}
+
 function render() {
   checks.forEach((button, index) => {
     const active = Boolean(state.checks?.[index]);
@@ -152,6 +165,10 @@ function render() {
       content.hidden = content.dataset.phaseContent !== asset.phase;
     });
   });
+  const dailyAnalysisComplete = allApplicableSelectsAnswered(dailyAssets, "select[data-daily-field]", (assetElement) => state.dailyAnalysis[assetElement.dataset.dailyAsset]);
+  const phaseAnalysisComplete = allApplicableSelectsAnswered(phaseAssets, "select[data-phase-field]", (assetElement) => state.htfAnalysis[assetElement.dataset.phaseAsset]);
+  dailyAnalysisSection.classList.toggle("is-complete", dailyAnalysisComplete);
+  phaseAnalysisSection.classList.toggle("is-complete", phaseAnalysisComplete);
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
   themeButton.setAttribute("aria-label", state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
   setupRating.hidden = !state.sessionStarted;
@@ -171,14 +188,28 @@ function render() {
   noteInput.value = state.note || "";
   const completedChecks = state.checks.filter(Boolean).length;
   routineCount.textContent = `${completedChecks} / 2`;
-  const readyToStart = completedChecks === 2 && state.moods.arrival.length > 0;
+  const readyToStart = completedChecks === 2 && state.moods.arrival.length > 0 && dailyAnalysisComplete && phaseAnalysisComplete;
   startButton.disabled = !readyToStart || state.sessionStarted;
   startButton.textContent = state.sessionStarted ? "Session in progress" : "Start session";
   breakButton.textContent = state.takingBreak ? "Break noted for today" : "Taking a break today";
   breakButton.setAttribute("aria-pressed", String(Boolean(state.takingBreak)));
   breakSuggestions.hidden = !state.takingBreak;
   suggestionButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.suggestion === state.breakSuggestion)));
-  statusMessage.textContent = state.takingBreak ? (state.breakSuggestion ? `${state.breakSuggestion} sounds good. Take the time you need.` : "Good call. Rest is part of the process.") : state.sessionStarted ? "Stay with your plan. Check back in when you are done." : readyToStart ? `${state.moods.arrival.join(" + ")} noted. You are ready.` : completedChecks === 2 ? "Select at least one arrival emotion to begin." : "I'm proud of you for showing up for yourself.";
+  if (state.takingBreak) {
+    statusMessage.textContent = state.breakSuggestion ? `${state.breakSuggestion} sounds good. Take the time you need.` : "Good call. Rest is part of the process.";
+  } else if (state.sessionStarted) {
+    statusMessage.textContent = "Stay with your plan. Check back in when you are done.";
+  } else if (readyToStart) {
+    statusMessage.textContent = `${state.moods.arrival.join(" + ")} noted. You are ready.`;
+  } else if (completedChecks === 2 && state.moods.arrival.length === 0) {
+    statusMessage.textContent = "Select at least one arrival emotion to begin.";
+  } else if (completedChecks === 2 && !dailyAnalysisComplete) {
+    statusMessage.textContent = "Complete the Daily Chart Analysis dropdowns to begin.";
+  } else if (completedChecks === 2 && !phaseAnalysisComplete) {
+    statusMessage.textContent = "Complete the applicable HTF Phase of Price dropdowns to begin.";
+  } else {
+    statusMessage.textContent = "I'm proud of you for showing up for yourself.";
+  }
   statusMessage.classList.toggle("ready", readyToStart);
   moodGroups.forEach((group) => {
     const reminder = document.querySelector(`#${group}Reminder`);

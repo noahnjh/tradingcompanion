@@ -73,6 +73,7 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .check-copy small { color: var(--muted); font-size: 12px; line-height: 1.35; }
 .analysis-details { padding: 0 0 14px; border-bottom: 1px solid var(--line); }
 .analysis-details summary { display: flex; align-items: center; gap: 12px; padding: 13px 0; color: var(--ink); cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; }
+.analysis-details.is-complete summary { color: var(--green); }
 .analysis-details summary::-webkit-details-marker { display: none; }
 .analysis-details summary::before { content: ""; flex: 0 0 20px; width: 8px; height: 8px; margin: -4px 0 0 6px; border-right: 1.5px solid var(--dim); border-bottom: 1.5px solid var(--dim); transform: rotate(45deg); transition: transform .2s ease; }
 .analysis-details[open] summary::before { margin-top: 4px; transform: rotate(225deg); }
