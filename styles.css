@@ -47,6 +47,16 @@ h1, h2, p { margin-top: 0; }
 .calm-button { color: var(--green); border: 1px solid var(--green); }
 .calm-button span { font-size: 19px; line-height: 1; }
 .calm-button:hover { color: var(--ink); background: rgba(147, 201, 166, .1); transform: translateY(-1px); }
+.example-figures-link { justify-self: center; padding: 0 4px 2px; color: var(--accent); border: 0; background: transparent; cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.example-figures-link:hover { color: var(--accent-soft); }
+.example-figures-dialog { width: min(960px, calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 18px; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
+.example-figures-dialog::backdrop { background: rgba(5, 10, 8, .78); backdrop-filter: blur(3px); }
+.example-figures-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.example-figures-header h2 { margin: 0; font-size: 16px; }
+.example-figures-close { flex: 0 0 34px; font-size: 22px; }
+.example-figures-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.example-figures-grid img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 5px; }
+.example-figures-dialog[open] { animation: breathing-mode-in .18s ease both; }
 h1 { margin-bottom: 0; font-size: 19px; letter-spacing: -.02em; }
 h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .icon-button { width: 34px; height: 34px; color: var(--muted); border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; font-size: 20px; line-height: 1; transition: .2s ease; }
@@ -173,4 +183,5 @@ body.breathing-active > *:not(.breathing-mode) { opacity: 0; pointer-events: non
 @keyframes breathe { 0%, 100% { transform: scale(.72); } 28.571% { transform: scale(1.2); } 50% { transform: scale(1.2); } 78.571% { transform: scale(.72); } }
 @keyframes phase-pulse { 0%, 26% { opacity: .65; } 33%, 50% { opacity: 1; } 83%, 100% { opacity: .65; } }
 @media (prefers-reduced-motion: reduce) { .breathing-mode, .breathing-mode.breathing-running .breathing-orb { animation: none; } .breathing-orb { transform: scale(1); } }
+@media (max-width: 600px) { .example-figures-dialog { padding: 13px; } .example-figures-grid { grid-template-columns: 1fr; gap: 9px; } }
 @media (max-width: 360px) { .shell { padding: 20px 15px 24px; } .mood { min-height: 48px; font-size: 10px; } .direction-assets, .alignment-assets { margin-left: 0; } }

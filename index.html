@@ -302,6 +302,7 @@
       </section>
 
       <section class="session-actions" aria-label="Session actions">
+        <button class="example-figures-link" id="exampleFiguresButton" type="button" aria-haspopup="dialog" aria-controls="exampleFiguresDialog">Example Figures</button>
         <button class="calm-button" id="calmButton" type="button" aria-label="Open Calm Breathing mode" title="Open Calm Breathing mode"><span aria-hidden="true">◌</span> Calm Breathing</button>
         <button class="primary-button" id="startButton" type="button" disabled>Start session</button>
         <button class="break-button" id="breakButton" type="button">Taking a break today</button>
@@ -389,6 +390,16 @@
       <p class="footer-note" id="statusMessage" aria-live="polite">I'm proud of you for showing up for yourself.</p>
       <button class="reset-bottom" id="resetBottomButton" type="button">Reset session</button>
     </main>
+    <dialog class="example-figures-dialog" id="exampleFiguresDialog" aria-labelledby="exampleFiguresHeading">
+      <div class="example-figures-header">
+        <h2 id="exampleFiguresHeading">Example Figures</h2>
+        <button class="icon-button example-figures-close" id="closeExampleFiguresButton" type="button" aria-label="Close example figures" title="Close">×</button>
+      </div>
+      <div class="example-figures-grid">
+        <img src="assets/example-figure-buyers-trapped.svg" alt="Price diagram showing buyers induced before buyers are trapped, with an imbalance zone and long bias marked." />
+        <img src="assets/example-figure-sellers-trapped.svg" alt="Price diagram showing sellers induced before sellers are trapped, with an imbalance zone and long bias marked." />
+      </div>
+    </dialog>
     <section class="breathing-mode" id="breathingMode" aria-labelledby="breathingHeading" aria-modal="true" role="dialog" hidden>
       <div class="breathing-content">
         <p class="eyebrow warm">A moment to reset</p>

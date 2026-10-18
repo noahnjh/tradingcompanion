@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 702 380" role="img" aria-labelledby="title desc">
+  <title id="title">Buyers induced, buyers trapped</title>
+  <desc id="desc">Price rises into a liquidity level, induces buyers, then falls into an imbalance before recovering upward.</desc>
+  <rect width="702" height="380" fill="#b8babb"/>
+  <g fill="none" stroke="#111" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M10 12 L28 88 L48 55 L68 88 L83 63 L98 142 L108 132 L132 278 L166 230 L179 261 L198 234 L218 263 L234 207 L255 320 L282 176 L312 258 L346 135 L380 232 L434 112 L464 210 L512 102 L545 240"/>
+    <path d="M48 55 H638 M133 279 H254 M312 258 H589 M433 112 H526"/>
+    <path d="M236 324 Q256 348 276 324" stroke="#246bff" stroke-width="2"/>
+  </g>
+  <path d="M255 282 H566 V323 H255 Z" fill="#91a9c8" opacity=".62"/>
+  <path d="M545 248 L560 294 L586 188 L600 214 L622 54 L636 64" fill="none" stroke="#27a84a" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <g fill="#111" font-family="Arial, sans-serif" font-size="16">
+    <text x="386" y="103">Buyers Induced</text>
+    <text x="278" y="304" fill="#233246" font-size="14">Imbalance</text>
+    <text x="577" y="284">Buyers Trapped</text>
+    <text x="247" y="360">LB</text>
+  </g>
+</svg>

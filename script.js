@@ -20,6 +20,9 @@ const phaseFieldOptions = {
 const tradeButtons = document.querySelectorAll(".trade-button");
 const themeButton = document.querySelector("#themeButton");
 const calmButton = document.querySelector("#calmButton");
+const exampleFiguresButton = document.querySelector("#exampleFiguresButton");
+const exampleFiguresDialog = document.querySelector("#exampleFiguresDialog");
+const closeExampleFiguresButton = document.querySelector("#closeExampleFiguresButton");
 const breathingMode = document.querySelector("#breathingMode");
 const breathingPhaseSteps = document.querySelectorAll("#breathingPhase .breathing-step");
 const returnButton = document.querySelector("#returnButton");
@@ -306,6 +309,12 @@ function openBreathingMode() {
 
 calmButton.addEventListener("click", openBreathingMode);
 returnButton.addEventListener("click", closeBreathingMode);
+
+exampleFiguresButton.addEventListener("click", () => exampleFiguresDialog.showModal());
+closeExampleFiguresButton.addEventListener("click", () => exampleFiguresDialog.close());
+exampleFiguresDialog.addEventListener("click", (event) => {
+  if (event.target === exampleFiguresDialog) exampleFiguresDialog.close();
+});
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !breathingMode.hidden) closeBreathingMode();
