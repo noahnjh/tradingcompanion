@@ -190,7 +190,8 @@ function render() {
   afterSession.hidden = !state.sessionCompleted;
   noteInput.value = state.note || "";
   const completedChecks = state.checks.filter(Boolean).length;
-  routineCount.textContent = `${completedChecks} / 2`;
+  const completedRoutineItems = completedChecks + Number(dailyAnalysisComplete) + Number(phaseAnalysisComplete);
+  routineCount.textContent = `${completedRoutineItems} / 4`;
   const readyToStart = completedChecks === 2 && state.moods.arrival.length > 0 && dailyAnalysisComplete && phaseAnalysisComplete;
   startButton.disabled = !readyToStart || state.sessionStarted;
   startButton.textContent = state.sessionStarted ? "Session in progress" : "Start session";
