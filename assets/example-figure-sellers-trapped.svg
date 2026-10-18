@@ -1,17 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 675 560" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1342 732" role="img" aria-labelledby="title desc">
   <title id="title">Sellers induced, sellers trapped</title>
   <desc id="desc">Price falls into an imbalance, induces sellers, then rises before reversing downward.</desc>
-  <rect width="675" height="560" fill="#b8babb"/>
-  <g fill="none" stroke="#111" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M14 24 L34 117 L70 81 L100 138 L126 91 L149 159 L182 67 L207 188 L236 132 L255 330 L278 238 L305 319 L331 234 L365 296 L390 227 L407 289 L437 185 L490 300 L503 246"/>
-    <path d="M70 81 H405 M182 66 H407 M235 330 H615 M407 285 H503"/>
+  <rect width="1342" height="732" fill="#b8babb"/>
+  <g fill="none" stroke="#111" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M22 47 L61 232 L135 159 L194 273 L248 179 L292 313 L359 129 L412 371 L466 259 L505 659 L551 426 L605 637 L656 414 L724 589 L777 402 L809 519 L868 305 L974 535 L1000 359"/>
+    <path d="M136 159 H358 M359 130 H407 M464 259 H1099 M505 659 H1225 M809 519 H1000"/>
   </g>
-  <path d="M184 63 H532 V112 H184 Z" fill="#91a9c8" opacity=".62"/>
-  <path d="M506 203 L523 132 L549 244 L565 224 L590 322 L604 313" fill="none" stroke="#ef3340" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
-  <g fill="#111" font-family="Arial, sans-serif" font-size="16">
-    <text x="173" y="35">LB</text>
-    <text x="218" y="91" fill="#233246" font-size="14">Imbalance</text>
-    <text x="541" y="376">Sellers Trapped</text>
-    <text x="438" y="510">Sellers Induced</text>
+  <path d="M359 124 H1058 V220 H359 Z" fill="#91a9c8" opacity=".62"/>
+  <path d="M1006 341 L1040 198 L1092 438 L1126 382 L1185 655" fill="none" stroke="#ef3340" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M1162 640 L1186 657 L1202 632" fill="none" stroke="#ef3340" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M319 131 Q359 60 399 131" fill="none" stroke="#246bff" stroke-width="3"/>
+  <g fill="#111" font-family="Arial, sans-serif" font-size="32">
+    <text x="340" y="68">LB</text>
+    <text x="430" y="178" fill="#233246" font-size="27">Imbalance</text>
+    <text x="1079" y="300">Sellers Trapped</text>
+    <text x="869" y="574">Sellers Induced</text>
   </g>
 </svg>
