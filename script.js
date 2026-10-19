@@ -151,6 +151,7 @@ function render() {
         field.checked = value;
       } else {
         field.value = value;
+        field.closest(".htf-field").classList.toggle("is-answered", value !== "");
       }
     });
   });
@@ -205,11 +206,13 @@ function render() {
     statusMessage.textContent = "Stay with your plan. Check back in when you are done.";
   } else if (readyToStart) {
     statusMessage.textContent = `${state.moods.arrival.join(" + ")} noted. You are ready.`;
-  } else if (completedChecks === 2 && state.moods.arrival.length === 0) {
+  } else if (completedChecks < 2) {
+    statusMessage.textContent = "Complete both Before you trade checks to begin.";
+  } else if (state.moods.arrival.length === 0) {
     statusMessage.textContent = "Select at least one arrival emotion to begin.";
-  } else if (completedChecks === 2 && !dailyAnalysisComplete) {
+  } else if (!dailyAnalysisComplete) {
     statusMessage.textContent = "Complete the Daily Chart Analysis dropdowns to begin.";
-  } else if (completedChecks === 2 && !phaseAnalysisComplete) {
+  } else if (!phaseAnalysisComplete) {
     statusMessage.textContent = "Complete the applicable HTF Phase of Price dropdowns to begin.";
   } else {
     statusMessage.textContent = "I'm proud of you for showing up for yourself.";
