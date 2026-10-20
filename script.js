@@ -151,7 +151,6 @@ function render() {
         field.checked = value;
       } else {
         field.value = value;
-        field.closest(".htf-field").classList.toggle("is-answered", value !== "");
       }
     });
   });

@@ -92,8 +92,6 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .htf-asset h3 { margin: 0 0 10px; color: var(--accent); font-family: "DM Mono", monospace; font-size: 12px; }
 .htf-field { display: grid; gap: 6px; margin-top: 10px; color: var(--muted); font-size: 11px; font-weight: 600; line-height: 1.4; }
 .htf-field select { width: 100%; min-height: 36px; padding: 7px 9px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font: inherit; }
-.htf-field.is-answered { color: var(--green); }
-.htf-field.is-answered select { color: var(--green); border-color: var(--green); }
 .htf-checkbox-field { display: flex; align-items: flex-start; gap: 8px; }
 .htf-checkbox-field input { flex: 0 0 auto; width: 16px; height: 16px; margin: 0; accent-color: var(--green); }
 .row-arrow { margin-left: auto; color: var(--dim); font-size: 22px; font-weight: 300; transition: transform .2s; }
