@@ -1,8 +1,10 @@
 const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton")];
 const sessionOptions = document.querySelectorAll(".session-option");
-const dailyAssets = document.querySelectorAll("[data-daily-asset]");
-const phaseAssets = document.querySelectorAll("[data-phase-asset]");
+const instrumentOptions = document.querySelector("#instrumentOptions");
+const customInstrumentOptions = document.querySelector("#customInstrumentOptions");
+const instrumentForm = document.querySelector("#instrumentForm");
+const customInstrumentInput = document.querySelector("#customInstrumentInput");
 const dailyAnalysisSection = document.querySelector('[data-analysis-section="daily"]');
 const phaseAnalysisSection = document.querySelector('[data-analysis-section="phase"]');
 const dailyFieldOptions = {
@@ -60,9 +62,13 @@ const legacyDirections = state.directions && typeof state.directions === "object
 const legacyAlignment = state.alignment && typeof state.alignment === "object" ? state.alignment : {};
 const legacyHtfAnalysis = state.htfAnalysis && typeof state.htfAnalysis === "object" && !Array.isArray(state.htfAnalysis) ? state.htfAnalysis : {};
 const savedDailyAnalysis = state.dailyAnalysis && typeof state.dailyAnalysis === "object" && !Array.isArray(state.dailyAnalysis) ? state.dailyAnalysis : {};
-state.dailyAnalysis = {};
-state.htfAnalysis = {};
-["GC", "NQ"].forEach((asset) => {
+state.selectedInstruments = Array.isArray(state.selectedInstruments)
+  ? [...new Set(state.selectedInstruments.filter((asset) => typeof asset === "string").map((asset) => asset.trim().toUpperCase()).filter(Boolean))]
+  : [];
+const analysisAssets = new Set(["GC", "NQ", ...Object.keys(savedDailyAnalysis), ...Object.keys(legacyHtfAnalysis), ...state.selectedInstruments]);
+state.dailyAnalysis = Object.create(null);
+state.htfAnalysis = Object.create(null);
+analysisAssets.forEach((asset) => {
   const savedDaily = savedDailyAnalysis[asset] && typeof savedDailyAnalysis[asset] === "object" ? savedDailyAnalysis[asset] : {};
   const savedHtf = legacyHtfAnalysis[asset] && typeof legacyHtfAnalysis[asset] === "object" ? legacyHtfAnalysis[asset] : {};
   const trappedTraders = savedHtf.trappedTraders || legacyDirections[asset]?.trapped || "";
@@ -108,6 +114,75 @@ state.trades = state.trades || {};
 state.setupRating = state.setupRating || "";
 state.theme = state.theme || "light";
 
+function defaultDailyAnalysis() {
+  return { sentiment: "", pdSweep: "", newDayBias: "", potentialHighLowEvaluated: false };
+}
+
+function defaultHtfAnalysis() {
+  return {
+    phase: "",
+    buildingLqAlertsSet: false,
+    evaluatedLtfForLbLq: false,
+    approachingTrapSide: "",
+    lbStatus: "",
+    trappedTraders: "",
+    evaluatingEntry: false,
+    lowerTimeframeAlignment: "",
+    opposingLqNotTaken: false,
+    trendLinesEvaluated: false
+  };
+}
+
+function ensureInstrumentAnalysis(asset) {
+  if (!state.dailyAnalysis[asset]) state.dailyAnalysis[asset] = defaultDailyAnalysis();
+  if (!state.htfAnalysis[asset]) state.htfAnalysis[asset] = defaultHtfAnalysis();
+}
+
+function ensureInstrumentCards(asset) {
+  if (asset === "GC" || asset === "NQ") return;
+  const dailyContainer = dailyAnalysisSection.querySelector(".htf-assets");
+  const phaseContainer = phaseAnalysisSection.querySelector(".htf-assets");
+  const dailyCardExists = Array.from(dailyContainer.querySelectorAll("[data-daily-asset]")).some((card) => card.dataset.dailyAsset === asset);
+  const phaseCardExists = Array.from(phaseContainer.querySelectorAll("[data-phase-asset]")).some((card) => card.dataset.phaseAsset === asset);
+  if (!dailyCardExists) {
+    const card = dailyContainer.querySelector('[data-daily-asset="GC"]').cloneNode(true);
+    const heading = card.querySelector("h3");
+    heading.id = `dailyCustomHeading${dailyContainer.querySelectorAll("[data-custom-asset]").length + 1}`;
+    heading.textContent = asset;
+    card.dataset.dailyAsset = asset;
+    card.dataset.customAsset = "true";
+    card.setAttribute("aria-labelledby", heading.id);
+    dailyContainer.append(card);
+  }
+  if (!phaseCardExists) {
+    const card = phaseContainer.querySelector('[data-phase-asset="GC"]').cloneNode(true);
+    const heading = card.querySelector("h3");
+    heading.id = `phaseCustomHeading${phaseContainer.querySelectorAll("[data-custom-asset]").length + 1}`;
+    heading.textContent = asset;
+    card.dataset.phaseAsset = asset;
+    card.dataset.customAsset = "true";
+    card.setAttribute("aria-labelledby", heading.id);
+    phaseContainer.append(card);
+  }
+}
+
+function renderInstrumentOptions() {
+  customInstrumentOptions.replaceChildren();
+  Object.keys(state.dailyAnalysis).filter((asset) => asset !== "GC" && asset !== "NQ").forEach((asset) => {
+    const button = document.createElement("button");
+    button.className = "instrument-option";
+    button.type = "button";
+    button.dataset.instrument = asset;
+    button.dataset.customInstrument = "true";
+    button.textContent = asset;
+    button.setAttribute("aria-pressed", String(state.selectedInstruments.includes(asset)));
+    customInstrumentOptions.append(button);
+  });
+  instrumentOptions.querySelectorAll('[data-instrument="GC"], [data-instrument="NQ"]').forEach((button) => {
+    button.setAttribute("aria-pressed", String(state.selectedInstruments.includes(button.dataset.instrument)));
+  });
+}
+
 function createMoodButtons() {
   moodGroups.forEach((group) => {
     const grid = document.querySelector(`#${group === "arrival" ? "arrival" : group}MoodGrid`);
@@ -137,14 +212,18 @@ function render() {
   });
   document.querySelectorAll(".mood").forEach((button) => button.setAttribute("aria-pressed", String(state.moods[button.dataset.moodGroup].includes(button.dataset.mood))));
   sessionOptions.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.session === state.session)));
+  renderInstrumentOptions();
   tradeButtons.forEach((button) => {
     const active = button.dataset.trade === state.activeTrade;
     button.setAttribute("aria-pressed", String(active));
     document.querySelector(`#${button.dataset.trade}Panel`).hidden = !active;
   });
   document.documentElement.dataset.theme = state.theme;
+  const dailyAssets = document.querySelectorAll("[data-daily-asset]");
+  const phaseAssets = document.querySelectorAll("[data-phase-asset]");
   dailyAssets.forEach((assetElement) => {
     const asset = state.dailyAnalysis[assetElement.dataset.dailyAsset];
+    assetElement.hidden = !state.selectedInstruments.includes(assetElement.dataset.dailyAsset);
     assetElement.querySelectorAll("[data-daily-field]").forEach((field) => {
       const value = asset[field.dataset.dailyField];
       if (field.type === "checkbox") {
@@ -156,6 +235,7 @@ function render() {
   });
   phaseAssets.forEach((assetElement) => {
     const asset = state.htfAnalysis[assetElement.dataset.phaseAsset];
+    assetElement.hidden = !state.selectedInstruments.includes(assetElement.dataset.phaseAsset);
     assetElement.querySelectorAll("[data-phase-field]").forEach((field) => {
       const value = asset[field.dataset.phaseField];
       if (field.type === "checkbox") {
@@ -168,8 +248,10 @@ function render() {
       content.hidden = content.dataset.phaseContent !== asset.phase;
     });
   });
-  const dailyAnalysisComplete = allApplicableSelectsAnswered(dailyAssets, "select[data-daily-field]", (assetElement) => state.dailyAnalysis[assetElement.dataset.dailyAsset]);
-  const phaseAnalysisComplete = allApplicableSelectsAnswered(phaseAssets, "select[data-phase-field]", (assetElement) => state.htfAnalysis[assetElement.dataset.phaseAsset]);
+  const selectedDailyAssets = Array.from(dailyAssets).filter((assetElement) => state.selectedInstruments.includes(assetElement.dataset.dailyAsset));
+  const selectedPhaseAssets = Array.from(phaseAssets).filter((assetElement) => state.selectedInstruments.includes(assetElement.dataset.phaseAsset));
+  const dailyAnalysisComplete = selectedDailyAssets.length > 0 && allApplicableSelectsAnswered(selectedDailyAssets, "select[data-daily-field]", (assetElement) => state.dailyAnalysis[assetElement.dataset.dailyAsset]);
+  const phaseAnalysisComplete = selectedPhaseAssets.length > 0 && allApplicableSelectsAnswered(selectedPhaseAssets, "select[data-phase-field]", (assetElement) => state.htfAnalysis[assetElement.dataset.phaseAsset]);
   dailyAnalysisSection.classList.toggle("is-complete", dailyAnalysisComplete);
   phaseAnalysisSection.classList.toggle("is-complete", phaseAnalysisComplete);
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
@@ -192,7 +274,7 @@ function render() {
   const completedChecks = state.checks.filter(Boolean).length;
   const completedRoutineItems = completedChecks + Number(dailyAnalysisComplete) + Number(phaseAnalysisComplete);
   routineCount.textContent = `${completedRoutineItems} / 4`;
-  const readyToStart = completedChecks === 2 && state.moods.arrival.length > 0 && dailyAnalysisComplete && phaseAnalysisComplete;
+  const readyToStart = completedChecks === 2 && state.moods.arrival.length > 0 && state.selectedInstruments.length > 0 && dailyAnalysisComplete && phaseAnalysisComplete;
   startButton.disabled = !readyToStart || state.sessionStarted;
   startButton.textContent = state.sessionStarted ? "Session in progress" : "Start session";
   breakButton.textContent = state.takingBreak ? "Break noted for today" : "Taking a break today";
@@ -209,6 +291,8 @@ function render() {
     statusMessage.textContent = "Complete both Before you trade checks to begin.";
   } else if (state.moods.arrival.length === 0) {
     statusMessage.textContent = "Select at least one arrival emotion to begin.";
+  } else if (state.selectedInstruments.length === 0) {
+    statusMessage.textContent = "Select at least one instrument to begin.";
   } else if (!dailyAnalysisComplete) {
     statusMessage.textContent = "Complete the Daily Chart Analysis dropdowns to begin.";
   } else if (!phaseAnalysisComplete) {
@@ -249,20 +333,54 @@ sessionOptions.forEach((button) => button.addEventListener("click", () => {
   render();
 }));
 
-dailyAssets.forEach((assetElement) => {
-  assetElement.querySelectorAll("[data-daily-field]").forEach((field) => field.addEventListener("change", () => {
-    state.dailyAnalysis[assetElement.dataset.dailyAsset][field.dataset.dailyField] = field.type === "checkbox" ? field.checked : field.value;
-    saveState();
-    render();
-  }));
+instrumentOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-instrument]");
+  if (!button) return;
+  const asset = button.dataset.instrument;
+  ensureInstrumentAnalysis(asset);
+  ensureInstrumentCards(asset);
+  state.selectedInstruments = state.selectedInstruments.includes(asset)
+    ? state.selectedInstruments.filter((selectedAsset) => selectedAsset !== asset)
+    : [...state.selectedInstruments, asset];
+  saveState();
+  render();
 });
 
-phaseAssets.forEach((assetElement) => {
-  assetElement.querySelectorAll("[data-phase-field]").forEach((field) => field.addEventListener("change", () => {
-    state.htfAnalysis[assetElement.dataset.phaseAsset][field.dataset.phaseField] = field.type === "checkbox" ? field.checked : field.value;
-    saveState();
-    render();
-  }));
+instrumentForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const asset = customInstrumentInput.value.trim().toUpperCase();
+  if (!asset) {
+    customInstrumentInput.setCustomValidity("Enter an instrument name.");
+    customInstrumentInput.reportValidity();
+    return;
+  }
+  customInstrumentInput.setCustomValidity("");
+  ensureInstrumentAnalysis(asset);
+  ensureInstrumentCards(asset);
+  if (!state.selectedInstruments.includes(asset)) state.selectedInstruments.push(asset);
+  customInstrumentInput.value = "";
+  saveState();
+  render();
+});
+
+customInstrumentInput.addEventListener("input", () => customInstrumentInput.setCustomValidity(""));
+
+dailyAnalysisSection.addEventListener("change", (event) => {
+  const field = event.target;
+  if (!field.matches("[data-daily-field]")) return;
+  const assetElement = field.closest("[data-daily-asset]");
+  state.dailyAnalysis[assetElement.dataset.dailyAsset][field.dataset.dailyField] = field.type === "checkbox" ? field.checked : field.value;
+  saveState();
+  render();
+});
+
+phaseAnalysisSection.addEventListener("change", (event) => {
+  const field = event.target;
+  if (!field.matches("[data-phase-field]")) return;
+  const assetElement = field.closest("[data-phase-asset]");
+  state.htfAnalysis[assetElement.dataset.phaseAsset][field.dataset.phaseField] = field.type === "checkbox" ? field.checked : field.value;
+  saveState();
+  render();
 });
 
 tradeButtons.forEach((button) => button.addEventListener("click", () => {
@@ -396,11 +514,11 @@ function createReportImage() {
   const width = 1200;
   const padding = 78;
   const lineHeight = 32;
-  const dailyReport = ["GC", "NQ"].map((asset) => {
+  const dailyReport = state.selectedInstruments.length ? state.selectedInstruments.map((asset) => {
     const analysis = state.dailyAnalysis[asset];
     return `${asset}: Overall sentiment: ${analysis.sentiment || "Not selected"}; PDL/PDH swept: ${analysis.pdSweep || "Not selected"}; New Day bias: ${analysis.newDayBias || "Not selected"}; Potential new Daily candle high/low evaluated: ${analysis.potentialHighLowEvaluated ? "Yes" : "No"}`;
-  }).join("; ");
-  const htfReport = ["GC", "NQ"].map((asset) => {
+  }).join("; ") : "None selected";
+  const htfReport = state.selectedInstruments.length ? state.selectedInstruments.map((asset) => {
     const analysis = state.htfAnalysis[asset];
     const phaseDetails = {
       "Building LQ": `HTF alerts set at LQ levels: ${analysis.buildingLqAlertsSet ? "Yes" : "No"}; LTF (M5/M15) evaluated for LB/LQ: ${analysis.evaluatedLtfForLbLq ? "Yes" : "No"}`,
@@ -409,7 +527,7 @@ function createReportImage() {
       "Induced/Trapped & Moved Away": `Trapped: ${analysis.trappedTraders || "Not selected"}; M5/M15 LB aligned with HTF LB: ${analysis.lowerTimeframeAlignment || "Not selected"}; Opposing LQ not yet taken: ${analysis.opposingLqNotTaken ? "Yes" : "No"}; HTF + LTF trend lines evaluated for confluence: ${analysis.trendLinesEvaluated ? "Yes" : "No"}`
     }[analysis.phase] || "";
     return `${asset}: Phase: ${analysis.phase || "Not selected"}${phaseDetails ? `; ${phaseDetails}` : ""}`;
-  }).join("; ");
+  }).join("; ") : "None selected";
   const sections = [
     ["Trading session", state.session || "Not selected"],
     ["Daily Chart Analysis", dailyReport],
@@ -502,14 +620,10 @@ copyReportButton.addEventListener("click", copyReportImage);
 function resetSession() {
   localStorage.removeItem("session-check-in");
   state.checks = [false, false];
-  state.dailyAnalysis = {
-    GC: { sentiment: "", pdSweep: "", newDayBias: "", potentialHighLowEvaluated: false },
-    NQ: { sentiment: "", pdSweep: "", newDayBias: "", potentialHighLowEvaluated: false }
-  };
-  state.htfAnalysis = {
-    GC: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", opposingLqNotTaken: false, trendLinesEvaluated: false },
-    NQ: { phase: "", buildingLqAlertsSet: false, evaluatedLtfForLbLq: false, approachingTrapSide: "", lbStatus: "", trappedTraders: "", evaluatingEntry: false, lowerTimeframeAlignment: "", opposingLqNotTaken: false, trendLinesEvaluated: false }
-  };
+  state.selectedInstruments = [];
+  state.dailyAnalysis = Object.assign(Object.create(null), { GC: defaultDailyAnalysis(), NQ: defaultDailyAnalysis() });
+  state.htfAnalysis = Object.assign(Object.create(null), { GC: defaultHtfAnalysis(), NQ: defaultHtfAnalysis() });
+  document.querySelectorAll("[data-custom-asset]").forEach((assetElement) => assetElement.remove());
   state.session = "";
   state.sessionChoiceInitialized = true;
   state.moods = { arrival: [], trade1: [], trade2: [], after: [] };
@@ -528,4 +642,5 @@ resetButtons.forEach((button) => button.addEventListener("click", resetSession))
 
 createMoodButtons();
 attachMoodListeners();
+state.selectedInstruments.forEach((asset) => ensureInstrumentCards(asset));
 render();

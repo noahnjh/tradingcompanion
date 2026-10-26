@@ -81,6 +81,20 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .check-copy { display: grid; gap: 4px; }
 .check-copy strong { color: var(--ink); font-size: 14px; font-weight: 600; transition: color .2s; }
 .check-copy small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+.instrument-picker { padding: 13px 0; border-bottom: 1px solid var(--line); }
+.instrument-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: var(--ink); font-size: 12px; font-weight: 700; }
+.instrument-heading small { color: var(--muted); font-size: 10px; font-weight: 500; }
+.instrument-options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.custom-instrument-options { display: contents; }
+.instrument-option, .instrument-add { min-height: 34px; padding: 7px 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 700; transition: .2s ease; }
+.instrument-option:hover, .instrument-option[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: rgba(229, 173, 98, .12); }
+.instrument-option[aria-pressed="true"] { color: var(--accent-soft); }
+.instrument-form { display: flex; gap: 6px; margin-top: 8px; }
+.instrument-form input { min-width: 0; flex: 1; padding: 8px 9px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: var(--panel-deep); font: inherit; font-size: 11px; }
+.instrument-form input::placeholder { color: var(--dim); }
+.instrument-add { color: var(--accent); border-color: rgba(229, 173, 98, .45); }
+.instrument-add:hover { background: rgba(229, 173, 98, .12); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .analysis-details { padding: 0 0 14px; border-bottom: 1px solid var(--line); }
 .analysis-details summary { display: flex; align-items: center; gap: 12px; padding: 13px 0; color: var(--ink); cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; }
 .analysis-details.is-complete summary { color: var(--green); }

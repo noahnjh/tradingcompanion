@@ -57,6 +57,22 @@
           <span class="check-box" aria-hidden="true">✓</span>
           <span class="check-copy"><strong>I've checked for upcoming news</strong><small>Know what can move the market before you enter.</small></span>
         </button>
+        <div class="instrument-picker">
+          <div class="instrument-heading">
+            <span>Which instrument(s) are you trading?</span>
+            <small>Select at least one</small>
+          </div>
+          <div class="instrument-options" id="instrumentOptions" role="group" aria-label="Choose one or more trading instruments">
+            <button class="instrument-option" type="button" data-instrument="GC" aria-pressed="false">GC</button>
+            <button class="instrument-option" type="button" data-instrument="NQ" aria-pressed="false">NQ</button>
+            <div class="custom-instrument-options" id="customInstrumentOptions"></div>
+          </div>
+          <form class="instrument-form" id="instrumentForm">
+            <label class="visually-hidden" for="customInstrumentInput">Other instrument</label>
+            <input id="customInstrumentInput" type="text" maxlength="20" placeholder="Type another asset" autocomplete="off" required />
+            <button class="instrument-add" type="submit">Add</button>
+          </form>
+        </div>
         <details class="analysis-details" data-analysis-section="daily">
           <summary>Daily Chart Analysis</summary>
           <div class="htf-assets">
