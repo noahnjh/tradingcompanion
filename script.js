@@ -216,6 +216,8 @@ function renderNewsCalendar() {
     const day = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + dayOffset);
     const key = dateKey(day);
     const events = highImpactNews.filter((event) => event.dateKey === key);
+    const daySlot = document.createElement("div");
+    daySlot.className = "news-day-slot";
     const cell = document.createElement("div");
     cell.className = "news-day";
     const isToday = key === dateKey(today);
@@ -236,7 +238,7 @@ function renderNewsCalendar() {
       todayMarker.className = "today-marker";
       todayMarker.setAttribute("aria-hidden", "true");
       todayMarker.textContent = "▼";
-      cell.append(todayMarker);
+      daySlot.append(todayMarker);
     }
 
     if (events.length) {
@@ -247,7 +249,8 @@ function renderNewsCalendar() {
       marker.title = events.map((event) => `${event.country}: ${event.title}`).join("\n");
       cell.append(marker);
     }
-    newsWeek.append(cell);
+    daySlot.append(cell);
+    newsWeek.append(daySlot);
   }
 }
 
