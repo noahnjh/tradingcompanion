@@ -209,7 +209,7 @@ function renderNewsCalendar() {
   const formatter = new Intl.DateTimeFormat(undefined, { weekday: "short" });
   newsWeek.replaceChildren();
 
-  for (let dayOffset = 0; dayOffset < 7; dayOffset += 1) {
+  for (let dayOffset = 0; dayOffset < 5; dayOffset += 1) {
     const day = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + dayOffset);
     const key = dateKey(day);
     const events = highImpactNews.filter((event) => event.dateKey === key);
