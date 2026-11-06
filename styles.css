@@ -86,7 +86,7 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .news-calendar-heading h3 { margin: 0; color: var(--ink); font-size: 12px; }
 .news-calendar-heading small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.35; }
 .news-calendar-heading a { flex: 0 0 auto; color: var(--accent); font-size: 10px; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-.news-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 10px; }
+.news-week { display: grid; width: min(100%, 340px); grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 10px auto 0; }
 .news-day { position: relative; display: grid; min-height: 58px; place-items: center; padding: 6px 2px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; background: var(--panel-deep); }
 .news-day-name { font-family: "DM Mono", monospace; font-size: 9px; text-transform: uppercase; }
 .news-day strong { color: var(--ink); font-size: 14px; line-height: 1; }
