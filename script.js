@@ -244,10 +244,10 @@ async function loadNewsCalendar() {
     const events = await response.json();
     if (!Array.isArray(events)) throw new Error("Calendar response was not a list");
     highImpactNews = events
-      .filter((event) => event && event.impact === "High" && event.date && event.title)
+      .filter((event) => event && event.country === "USD" && event.impact === "High" && event.date && event.title)
       .map((event) => ({ ...event, dateKey: dateKey(new Date(event.date)) }))
       .filter((event) => event.dateKey);
-    newsCalendarStatus.textContent = "Red markers show high-impact events.";
+    newsCalendarStatus.textContent = "Red markers show USD high-impact events.";
   } catch (error) {
     highImpactNews = [];
     newsCalendarStatus.textContent = "News feed unavailable. Open the calendar to check manually.";
