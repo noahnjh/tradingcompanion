@@ -1,5 +1,9 @@
 const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton")];
+const newsWeek = document.querySelector("#newsWeek");
+const newsCalendarStatus = document.querySelector("#newsCalendarStatus");
+const newsFeedUrl = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
+let highImpactNews = [];
 const sessionOptions = document.querySelectorAll(".session-option");
 const instrumentOptions = document.querySelector("#instrumentOptions");
 const customInstrumentOptions = document.querySelector("#customInstrumentOptions");
@@ -192,6 +196,64 @@ function createMoodButtons() {
 
 function saveState() {
   localStorage.setItem("session-check-in", JSON.stringify(state));
+}
+
+function dateKey(date) {
+  if (Number.isNaN(date.getTime())) return "";
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+}
+
+function renderNewsCalendar() {
+  const today = new Date();
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+  const formatter = new Intl.DateTimeFormat(undefined, { weekday: "short" });
+  newsWeek.replaceChildren();
+
+  for (let dayOffset = 0; dayOffset < 7; dayOffset += 1) {
+    const day = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + dayOffset);
+    const key = dateKey(day);
+    const events = highImpactNews.filter((event) => event.dateKey === key);
+    const cell = document.createElement("div");
+    cell.className = "news-day";
+    cell.classList.toggle("has-news", events.length > 0);
+    cell.setAttribute("aria-label", `${formatter.format(day)} ${day.getDate()}${events.length ? `, ${events.length} high-impact event${events.length === 1 ? "" : "s"}` : ", no high-impact events"}`);
+
+    const dayName = document.createElement("span");
+    dayName.className = "news-day-name";
+    dayName.textContent = formatter.format(day);
+    const dayNumber = document.createElement("strong");
+    dayNumber.textContent = `${day.getMonth() + 1}/${day.getDate()}`;
+    cell.append(dayName, dayNumber);
+
+    if (events.length) {
+      const marker = document.createElement("span");
+      marker.className = "news-marker";
+      marker.setAttribute("aria-hidden", "true");
+      marker.textContent = "●";
+      marker.title = events.map((event) => `${event.country}: ${event.title}`).join("\n");
+      cell.append(marker);
+    }
+    newsWeek.append(cell);
+  }
+}
+
+async function loadNewsCalendar() {
+  try {
+    const response = await fetch(newsFeedUrl, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error(`Calendar request failed with ${response.status}`);
+    const events = await response.json();
+    if (!Array.isArray(events)) throw new Error("Calendar response was not a list");
+    highImpactNews = events
+      .filter((event) => event && event.impact === "High" && event.date && event.title)
+      .map((event) => ({ ...event, dateKey: dateKey(new Date(event.date)) }))
+      .filter((event) => event.dateKey);
+    newsCalendarStatus.textContent = "Red markers show high-impact events.";
+  } catch (error) {
+    highImpactNews = [];
+    newsCalendarStatus.textContent = "News feed unavailable. Open the calendar to check manually.";
+    newsCalendarStatus.title = error.message;
+  }
+  renderNewsCalendar();
 }
 
 function allApplicableSelectsAnswered(assetElements, fieldSelector, getAnalysis) {
@@ -644,3 +706,5 @@ createMoodButtons();
 attachMoodListeners();
 state.selectedInstruments.forEach((asset) => ensureInstrumentCards(asset));
 render();
+renderNewsCalendar();
+loadNewsCalendar();

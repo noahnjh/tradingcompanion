@@ -81,6 +81,17 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .check-copy { display: grid; gap: 4px; }
 .check-copy strong { color: var(--ink); font-size: 14px; font-weight: 600; transition: color .2s; }
 .check-copy small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+.news-calendar { padding: 13px 0; border-bottom: 1px solid var(--line); }
+.news-calendar-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.news-calendar-heading h3 { margin: 0; color: var(--ink); font-size: 12px; }
+.news-calendar-heading small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.news-calendar-heading a { flex: 0 0 auto; color: var(--accent); font-size: 10px; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.news-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 10px; }
+.news-day { position: relative; display: grid; min-height: 58px; place-items: center; padding: 6px 2px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; background: var(--panel-deep); }
+.news-day-name { font-family: "DM Mono", monospace; font-size: 9px; text-transform: uppercase; }
+.news-day strong { color: var(--ink); font-size: 14px; line-height: 1; }
+.news-marker { color: #d65b57; font-size: 15px; line-height: 1; }
+.news-day.has-news { border-color: rgba(214, 91, 87, .55); }
 .instrument-picker { padding: 13px 0; border-bottom: 1px solid var(--line); }
 .instrument-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: var(--ink); font-size: 12px; font-weight: 700; }
 .instrument-heading small { color: var(--muted); font-size: 10px; font-weight: 500; }
