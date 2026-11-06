@@ -2,7 +2,7 @@ const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton")];
 const newsWeek = document.querySelector("#newsWeek");
 const newsCalendarStatus = document.querySelector("#newsCalendarStatus");
-const newsFeedUrl = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
+const newsFeedUrl = "data/news.json";
 let highImpactNews = [];
 const sessionOptions = document.querySelectorAll(".session-option");
 const instrumentOptions = document.querySelector("#instrumentOptions");
@@ -209,7 +209,7 @@ function renderNewsCalendar() {
   const formatter = new Intl.DateTimeFormat(undefined, { weekday: "short" });
   newsWeek.replaceChildren();
 
-  for (let dayOffset = 0; dayOffset < 7; dayOffset += 1) {
+  for (let dayOffset = 0; dayOffset < 5; dayOffset += 1) {
     const day = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + dayOffset);
     const key = dateKey(day);
     const events = highImpactNews.filter((event) => event.dateKey === key);
