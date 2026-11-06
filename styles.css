@@ -95,7 +95,8 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .news-day strong { color: var(--ink); font-size: 14px; line-height: 1; }
 .news-marker { color: #d65b57; font-size: 15px; line-height: 1; }
 .news-day.has-news { border-color: rgba(214, 91, 87, .55); }
-.today-marker { align-self: end; color: var(--accent); font-size: 8px; line-height: 1; text-align: center; }
+.today-marker { grid-row: 1; align-self: end; color: var(--accent); font-size: 8px; line-height: 1; text-align: center; }
+.news-day { grid-row: 2; }
 .instrument-picker { padding: 13px 0; border-bottom: 1px solid var(--line); }
 .instrument-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: var(--ink); font-size: 12px; font-weight: 700; }
 .instrument-heading small { color: var(--muted); font-size: 10px; font-weight: 500; }
