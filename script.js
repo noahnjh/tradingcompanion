@@ -2,6 +2,7 @@ const state = JSON.parse(localStorage.getItem("session-check-in") || "{}" );
 const checks = [document.querySelector("#ackButton"), document.querySelector("#newsButton")];
 const newsWeek = document.querySelector("#newsWeek");
 const newsCalendarStatus = document.querySelector("#newsCalendarStatus");
+const newsToday = document.querySelector("#newsToday");
 const newsFeedUrl = "data/news.json";
 let highImpactNews = [];
 const sessionOptions = document.querySelectorAll(".session-option");
@@ -207,6 +208,8 @@ function renderNewsCalendar() {
   const today = new Date();
   const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
   const formatter = new Intl.DateTimeFormat(undefined, { weekday: "short" });
+  const todayFormatter = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" });
+  newsToday.textContent = `Today is ${todayFormatter.format(today)}`;
   newsWeek.replaceChildren();
 
   for (let dayOffset = 0; dayOffset < 5; dayOffset += 1) {
@@ -215,6 +218,9 @@ function renderNewsCalendar() {
     const events = highImpactNews.filter((event) => event.dateKey === key);
     const cell = document.createElement("div");
     cell.className = "news-day";
+    const isToday = key === dateKey(today);
+    cell.classList.toggle("today", isToday);
+    if (isToday) cell.setAttribute("aria-current", "date");
     cell.classList.toggle("has-news", events.length > 0);
     cell.setAttribute("aria-label", `${formatter.format(day)} ${day.getDate()}${events.length ? `, ${events.length} high-impact event${events.length === 1 ? "" : "s"}` : ", no high-impact events"}`);
 
@@ -224,6 +230,14 @@ function renderNewsCalendar() {
     const dayNumber = document.createElement("strong");
     dayNumber.textContent = `${day.getMonth() + 1}/${day.getDate()}`;
     cell.append(dayName, dayNumber);
+
+    if (isToday) {
+      const todayMarker = document.createElement("span");
+      todayMarker.className = "today-marker";
+      todayMarker.setAttribute("aria-hidden", "true");
+      todayMarker.textContent = "▼";
+      cell.append(todayMarker);
+    }
 
     if (events.length) {
       const marker = document.createElement("span");
@@ -247,7 +261,7 @@ async function loadNewsCalendar() {
       .filter((event) => event && event.country === "USD" && event.impact === "High" && event.date && event.title)
       .map((event) => ({ ...event, dateKey: dateKey(new Date(event.date)) }))
       .filter((event) => event.dateKey);
-    newsCalendarStatus.textContent = "Red markers show USD high-impact events.";
+    newsCalendarStatus.textContent = "Red markers show USD red-folder events.";
   } catch (error) {
     highImpactNews = [];
     newsCalendarStatus.textContent = "News feed unavailable. Open the calendar to check manually.";
