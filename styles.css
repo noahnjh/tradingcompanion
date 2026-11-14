@@ -68,6 +68,9 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .session-option { padding: 9px 8px; color: var(--muted); border: 1px solid var(--line); border-radius: 7px; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; transition: .2s ease; }
 .session-option span { margin-right: 5px; color: var(--accent); }
 .session-option[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: rgba(229, 173, 98, .12); }
+.pre-trade-toggle { display: flex; justify-content: center; width: 100%; min-height: 40px; margin: -12px 0 20px; padding: 9px 12px; color: var(--accent); border: 1px solid rgba(229, 173, 98, .45); border-radius: 7px; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
+.pre-trade-toggle:hover { background: rgba(229, 173, 98, .1); }
+.pre-trade-toggle[hidden] { display: none; }
 .section-label { justify-content: space-between; margin-bottom: 12px; }
 .count, .step-label, .optional { color: var(--accent); font-family: "DM Mono", monospace; font-size: 10px; }
 .step-label { color: var(--ink); }
@@ -89,7 +92,7 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 .news-today { margin: 10px 0 0; color: var(--accent); font-family: "DM Mono", monospace; font-size: 10px; font-weight: 500; text-align: center; }
 .news-week { display: grid; width: min(100%, 340px); grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 10px auto 0; }
 .news-day-slot { display: grid; grid-template-rows: 12px 58px; }
-.news-reminder { margin: 8px 0 0; color: var(--muted); font-size: 10px; line-height: 1.35; text-align: center; }
+.news-reminder { margin: 12px 0 0; color: #e06b68; font-size: 13px; font-weight: 800; line-height: 1.45; text-align: center; }
 .news-day { position: relative; display: grid; height: 100%; box-sizing: border-box; grid-template-rows: repeat(3, minmax(0, 1fr)); place-items: center; padding: 6px 2px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; background: var(--panel-deep); }
 .news-day-name { font-family: "DM Mono", monospace; font-size: 9px; text-transform: uppercase; }
 .news-day strong { color: var(--ink); font-size: 14px; line-height: 1; }
