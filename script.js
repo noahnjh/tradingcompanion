@@ -41,7 +41,7 @@ const completeButton = document.querySelector("#completeButton");
 const resetButtons = document.querySelectorAll("#resetButton, #resetBottomButton");
 const setupRating = document.querySelector("#setupRating");
 const setupRatingOptions = document.querySelectorAll(".setup-rating-option");
-const setupRatingMessage = document.querySelector("#setupRatingMessage");
+const setupRatingMessages = document.querySelectorAll("[data-rating-message]");
 const preTradeSelections = document.querySelector("#preTradeSelections");
 const preTradeToggle = document.querySelector("#preTradeToggle");
 const tradeCheckins = document.querySelector("#tradeCheckins");
@@ -118,7 +118,13 @@ moodGroups.forEach((group) => {
   });
 });
 state.trades = state.trades || {};
-state.setupRating = state.setupRating || "";
+const savedTradeRatings = state.tradeRatings && typeof state.tradeRatings === "object" && !Array.isArray(state.tradeRatings) ? state.tradeRatings : {};
+const validRatings = ["A+", "B+", "C"];
+state.tradeRatings = {
+  trade1: validRatings.includes(savedTradeRatings.trade1) ? savedTradeRatings.trade1 : validRatings.includes(state.setupRating) ? state.setupRating : "",
+  trade2: validRatings.includes(savedTradeRatings.trade2) ? savedTradeRatings.trade2 : ""
+};
+delete state.setupRating;
 state.preTradeCollapsed = typeof state.preTradeCollapsed === "boolean" ? state.preTradeCollapsed : Boolean(state.sessionStarted);
 state.theme = state.theme || "light";
 
@@ -344,15 +350,18 @@ function render() {
   preTradeToggle.setAttribute("aria-expanded", String(!preTradeCollapsed));
   preTradeToggle.textContent = preTradeCollapsed ? "Show pre-trade selections" : "Hide pre-trade selections";
   setupRating.hidden = !state.sessionStarted;
-  setupRatingOptions.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.rating === state.setupRating)));
+  setupRatingOptions.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.rating === state.tradeRatings[button.dataset.tradeRating])));
   const setupMessages = {
     "A+": "This is a strong setup. Stay patient and execute your plan.",
     "B+": "It may be best to wait for a more ideal setup or trade with smaller size.",
     C: "This is not a trade we want to take. Protect your capital and pass."
   };
-  setupRatingMessage.hidden = !state.setupRating;
-  setupRatingMessage.textContent = setupMessages[state.setupRating] || "";
-  setupRatingMessage.dataset.rating = state.setupRating;
+  setupRatingMessages.forEach((message) => {
+    const rating = state.tradeRatings[message.dataset.ratingMessage];
+    message.hidden = !rating;
+    message.textContent = setupMessages[rating] || "";
+    message.dataset.rating = rating;
+  });
   tradeCheckins.hidden = !state.sessionStarted;
   completeButton.hidden = !state.sessionStarted;
   completeButton.setAttribute("aria-pressed", String(Boolean(state.sessionCompleted)));
@@ -572,7 +581,8 @@ suggestionButtons.forEach((button) => button.addEventListener("click", () => {
 }));
 
 setupRatingOptions.forEach((button) => button.addEventListener("click", () => {
-  state.setupRating = state.setupRating === button.dataset.rating ? "" : button.dataset.rating;
+  const trade = button.dataset.tradeRating;
+  state.tradeRatings[trade] = state.tradeRatings[trade] === button.dataset.rating ? "" : button.dataset.rating;
   saveState();
   render();
 }));
@@ -628,7 +638,8 @@ function createReportImage() {
     ["Daily Chart Analysis", dailyReport],
     ["HTF Phase of Price (H1/H4)", htfReport],
     ["Arrival emotions", reportValue(state.moods.arrival)],
-    ["Trade setup rating", state.setupRating || "Not rated"],
+    ["Trade 1 setup rating", state.tradeRatings.trade1 || "Not rated"],
+    ["Trade 2 setup rating", state.tradeRatings.trade2 || "Not rated"],
     ["After-session emotions", reportValue(state.moods.after)],
     ["Notes", state.note?.trim() || "No notes added"]
   ];
@@ -724,7 +735,7 @@ function resetSession() {
   state.moods = { arrival: [], trade1: [], trade2: [], after: [] };
   state.trades = {};
   state.activeTrade = "";
-  state.setupRating = "";
+  state.tradeRatings = { trade1: "", trade2: "" };
   state.sessionStarted = false;
   state.sessionCompleted = false;
   state.preTradeCollapsed = false;

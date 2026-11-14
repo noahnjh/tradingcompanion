@@ -351,14 +351,28 @@
 
       <section class="setup-rating" id="setupRating" aria-labelledby="setupRatingHeading" hidden>
         <div class="section-label">
-          <div><h2 id="setupRatingHeading">Trade setup rating</h2><p>How closely does this setup match your plan?</p></div>
+          <div><h2 id="setupRatingHeading">Trade setup rating</h2><p>How closely does each setup match your plan?</p></div>
         </div>
-        <div class="setup-rating-options" role="group" aria-label="Rate the trade setup">
-          <button class="setup-rating-option" type="button" data-rating="A+" aria-pressed="false">A+</button>
-          <button class="setup-rating-option" type="button" data-rating="B+" aria-pressed="false">B+</button>
-          <button class="setup-rating-option" type="button" data-rating="C" aria-pressed="false">C</button>
+        <div class="setup-rating-trades">
+          <div class="setup-rating-trade">
+            <h3>Trade 1</h3>
+            <div class="setup-rating-options" role="group" aria-label="Rate Trade 1 setup">
+              <button class="setup-rating-option" type="button" data-trade-rating="trade1" data-rating="A+" aria-pressed="false">A+</button>
+              <button class="setup-rating-option" type="button" data-trade-rating="trade1" data-rating="B+" aria-pressed="false">B+</button>
+              <button class="setup-rating-option" type="button" data-trade-rating="trade1" data-rating="C" aria-pressed="false">C</button>
+            </div>
+            <p class="setup-rating-message" data-rating-message="trade1" aria-live="polite" hidden></p>
+          </div>
+          <div class="setup-rating-trade">
+            <h3>Trade 2</h3>
+            <div class="setup-rating-options" role="group" aria-label="Rate Trade 2 setup">
+              <button class="setup-rating-option" type="button" data-trade-rating="trade2" data-rating="A+" aria-pressed="false">A+</button>
+              <button class="setup-rating-option" type="button" data-trade-rating="trade2" data-rating="B+" aria-pressed="false">B+</button>
+              <button class="setup-rating-option" type="button" data-trade-rating="trade2" data-rating="C" aria-pressed="false">C</button>
+            </div>
+            <p class="setup-rating-message" data-rating-message="trade2" aria-live="polite" hidden></p>
+          </div>
         </div>
-        <p class="setup-rating-message" id="setupRatingMessage" aria-live="polite" hidden></p>
       </section>
 
       <section class="trades" id="tradeCheckins" aria-labelledby="tradesHeading" hidden>
