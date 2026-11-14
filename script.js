@@ -42,6 +42,8 @@ const resetButtons = document.querySelectorAll("#resetButton, #resetBottomButton
 const setupRating = document.querySelector("#setupRating");
 const setupRatingOptions = document.querySelectorAll(".setup-rating-option");
 const setupRatingMessage = document.querySelector("#setupRatingMessage");
+const preTradeSelections = document.querySelector("#preTradeSelections");
+const preTradeToggle = document.querySelector("#preTradeToggle");
 const tradeCheckins = document.querySelector("#tradeCheckins");
 const afterSession = document.querySelector("#afterSession");
 const routineCount = document.querySelector("#routineCount");
@@ -117,6 +119,7 @@ moodGroups.forEach((group) => {
 });
 state.trades = state.trades || {};
 state.setupRating = state.setupRating || "";
+state.preTradeCollapsed = typeof state.preTradeCollapsed === "boolean" ? state.preTradeCollapsed : Boolean(state.sessionStarted);
 state.theme = state.theme || "light";
 
 function defaultDailyAnalysis() {
@@ -335,6 +338,11 @@ function render() {
   phaseAnalysisSection.classList.toggle("is-complete", phaseAnalysisComplete);
   themeButton.textContent = state.theme === "dark" ? "☼" : "☾";
   themeButton.setAttribute("aria-label", state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  const preTradeCollapsed = Boolean(state.sessionStarted && state.preTradeCollapsed);
+  preTradeSelections.hidden = preTradeCollapsed;
+  preTradeToggle.hidden = !state.sessionStarted;
+  preTradeToggle.setAttribute("aria-expanded", String(!preTradeCollapsed));
+  preTradeToggle.textContent = preTradeCollapsed ? "Show pre-trade selections" : "Hide pre-trade selections";
   setupRating.hidden = !state.sessionStarted;
   setupRatingOptions.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.rating === state.setupRating)));
   const setupMessages = {
@@ -529,9 +537,16 @@ startButton.addEventListener("click", () => {
   state.sessionStarted = true;
   state.sessionCompleted = false;
   state.takingBreak = false;
+  state.preTradeCollapsed = true;
   saveState();
   render();
   startButton.disabled = true;
+});
+
+preTradeToggle.addEventListener("click", () => {
+  state.preTradeCollapsed = !state.preTradeCollapsed;
+  saveState();
+  render();
 });
 
 completeButton.addEventListener("click", () => {
@@ -544,6 +559,7 @@ breakButton.addEventListener("click", () => {
   state.takingBreak = !state.takingBreak;
   state.sessionStarted = false;
   state.sessionCompleted = false;
+  state.preTradeCollapsed = false;
   if (!state.takingBreak) state.breakSuggestion = "";
   saveState();
   render();
@@ -711,6 +727,7 @@ function resetSession() {
   state.setupRating = "";
   state.sessionStarted = false;
   state.sessionCompleted = false;
+  state.preTradeCollapsed = false;
   state.takingBreak = false;
   state.breakSuggestion = "";
   state.note = "";
